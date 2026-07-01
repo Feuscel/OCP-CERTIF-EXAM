@@ -1,0 +1,20 @@
+# build output
+dist/
+.output/
+
+# dependencies
+node_modules/
+
+# astro
+.astro/
+
+# logs
+*.log
+npm-debug.*
+
+# env
+.env
+.env.production
+
+# os
+.DS_Store

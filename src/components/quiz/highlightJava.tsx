@@ -1,0 +1,58 @@
+import React from 'react';
+
+const TOKEN_RE = new RegExp(
+  [
+    String.raw`(?<lineComment>//[^\n]*)`,
+    String.raw`(?<blockComment>/\*[\s\S]*?\*/)`,
+    String.raw`(?<string>"(?:\\.|[^"\\])*")`,
+    String.raw`(?<char>'(?:\\.|[^'\\])*')`,
+    String.raw`(?<annotation>@[A-Za-z_]\w*)`,
+    String.raw`(?<keyword>\b(?:abstract|assert|break|case|catch|class|const|continue|default|do|else|enum|extends|final|finally|for|goto|if|implements|import|instanceof|interface|native|new|package|private|protected|public|return|static|strictfp|super|switch|synchronized|this|throw|throws|transient|try|var|volatile|while|yield|record|sealed|permits|non-sealed)\b)`,
+    String.raw`(?<primitive>\b(?:boolean|byte|char|double|float|int|long|short|void)\b)`,
+    String.raw`(?<type>\b[A-Z][A-Za-z0-9_]*\b)`,
+    String.raw`(?<number>\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?[fFdDlL]?\b)`,
+  ].join('|'),
+  'g'
+);
+
+const COLORS: Record<string, string> = {
+  lineComment: 'text-slate-500 italic',
+  blockComment: 'text-slate-500 italic',
+  string: 'text-amber-300',
+  char: 'text-amber-300',
+  annotation: 'text-pink-400',
+  keyword: 'text-fuchsia-400 font-semibold',
+  primitive: 'text-sky-400',
+  type: 'text-emerald-400',
+  number: 'text-orange-300',
+};
+
+export function highlightJava(code: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = [];
+  const re = new RegExp(TOKEN_RE.source, 'g');
+  let last = 0;
+  let i = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(code)) !== null) {
+    if (m.index > last) {
+      nodes.push(code.slice(last, m.index));
+    }
+    const groups = m.groups ?? {};
+    const entry = Object.entries(groups).find(([, v]) => v !== undefined);
+    if (entry) {
+      const kind = entry[0];
+      const value = entry[1];
+      nodes.push(
+        <span key={`tk${i}`} className={COLORS[kind] ?? ''}>
+          {value}
+        </span>
+      );
+    }
+    last = m.index + m[0].length;
+    i++;
+  }
+  if (last < code.length) {
+    nodes.push(code.slice(last));
+  }
+  return nodes;
+}

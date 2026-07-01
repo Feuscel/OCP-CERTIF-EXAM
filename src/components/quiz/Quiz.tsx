@@ -1,0 +1,334 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { Answers, ExamView } from './types';
+import { makeQuestionOrder, makeDisplayOptions, type DisplayOption } from './shuffle';
+import { evaluateExam } from './scoring';
+import { saveAttempt, type Attempt } from './storage';
+import Report from './Report';
+import { RichText } from './RichText';
+
+interface Props {
+  exam: ExamView;
+}
+
+function formatTime(total: number): string {
+  const m = Math.floor(total / 60)
+    .toString()
+    .padStart(2, '0');
+  const s = Math.floor(total % 60)
+    .toString()
+    .padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+export default function Quiz({ exam }: Props) {
+  const totalSeconds = exam.durationMinutes * 60;
+
+  const questionOrder = useMemo(
+    () => makeQuestionOrder(exam.questions, exam.shuffleQuestions),
+    [exam]
+  );
+
+  const displayOptionsMap = useMemo(() => {
+    const map = new Map<string, DisplayOption[]>();
+    for (const q of questionOrder) {
+      map.set(q.id, makeDisplayOptions(q, exam.shuffleOptions));
+    }
+    return map;
+  }, [questionOrder, exam.shuffleOptions]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [remaining, setRemaining] = useState(totalSeconds);
+  const [submitted, setSubmitted] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+
+  const handleSubmit = useCallback(
+    (fromTimeout: boolean) => {
+      const elapsedNow = totalSeconds - remaining;
+      const result = evaluateExam(exam, answers);
+      const attempt: Attempt = {
+        id: `${exam.id}-${Date.now()}`,
+        timestamp: Date.now(),
+        examId: exam.id,
+        examTitle: exam.title,
+        durationSeconds: elapsedNow,
+        scorePercent: Math.round(result.percent * 100),
+        passed: result.passed,
+        questionCount: result.totalQuestions,
+        answeredCount: result.answeredQuestions,
+      };
+      saveAttempt(attempt);
+      setSubmitted(true);
+      setTimedOut(fromTimeout);
+    },
+    [exam, answers, remaining, totalSeconds]
+  );
+
+  const elapsed = totalSeconds - remaining;
+  const answeredCount = questionOrder.filter((q) => (answers[q.id]?.length ?? 0) > 0).length;
+
+  useEffect(() => {
+    if (submitted) return;
+    const id = window.setInterval(() => {
+      setRemaining((r) => r - 1);
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [submitted]);
+
+  useEffect(() => {
+    if (!submitted && remaining <= 0) {
+      handleSubmit(true);
+    }
+  }, [remaining, submitted, handleSubmit]);
+
+  const current = questionOrder[currentIndex];
+
+  const toggleAnswer = (originalLabel: string) => {
+    setAnswers((prev) => {
+      const q = current;
+      const sel = prev[q.id] ?? [];
+      if (q.type === 'single-choice') {
+        return { ...prev, [q.id]: [originalLabel] };
+      }
+      const next = sel.includes(originalLabel)
+        ? sel.filter((s) => s !== originalLabel)
+        : [...sel, originalLabel];
+      return { ...prev, [q.id]: next };
+    });
+  };
+
+  const clearAnswer = () => {
+    setAnswers((prev) => ({ ...prev, [current.id]: [] }));
+  };
+
+  const goPrev = () => setCurrentIndex((i) => Math.max(0, i - 1));
+  const goNext = () => setCurrentIndex((i) => Math.min(questionOrder.length - 1, i + 1));
+  const goTo = (i: number) => setCurrentIndex(i);
+
+  const confirmSubmit = () => {
+    if (window.confirm('Soumettre l\'examen ? Cette action est définitive.')) {
+      handleSubmit(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <Report
+        exam={exam}
+        answers={answers}
+        timedOut={timedOut}
+        elapsedSeconds={elapsed}
+        totalSeconds={totalSeconds}
+        questionOrder={questionOrder}
+      />
+    );
+  }
+
+  const selected = answers[current.id] ?? [];
+  const currentDisplayOptions = displayOptionsMap.get(current.id) ?? [];
+
+  return (
+    <div className="space-y-6">
+      <QuizHeader
+        title={exam.title}
+        remaining={remaining}
+        answeredCount={answeredCount}
+        totalQuestions={questionOrder.length}
+      />
+
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={clearAnswer}
+          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+        >
+          Effacer
+        </button>
+      </div>
+
+      <QuestionCard
+        question={current}
+        displayOptions={currentDisplayOptions}
+        selected={selected}
+        onToggle={toggleAnswer}
+        onClear={clearAnswer}
+        index={currentIndex}
+        total={questionOrder.length}
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={goPrev}
+          disabled={currentIndex === 0}
+          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        >
+          ← Précédent
+        </button>
+        <QuestionPalette
+          questionOrder={questionOrder}
+          answers={answers}
+          currentIndex={currentIndex}
+          onJump={goTo}
+        />
+        <button
+          type="button"
+          onClick={goNext}
+          disabled={currentIndex === questionOrder.length - 1}
+          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        >
+          Suivant →
+        </button>
+      </div>
+
+      <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
+        <button
+          type="button"
+          onClick={confirmSubmit}
+          className="w-full rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        >
+          Soumettre l'examen
+        </button>
+      </div>
+    </div>
+  );
+}
+
+interface QuizHeaderProps {
+  title: string;
+  remaining: number;
+  answeredCount: number;
+  totalQuestions: number;
+}
+
+function QuizHeader({ title, remaining, answeredCount, totalQuestions }: QuizHeaderProps) {
+  const danger = remaining <= 60;
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div>
+        <h1 className="text-lg font-bold">{title}</h1>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {answeredCount}/{totalQuestions} répondues
+        </p>
+      </div>
+      <div
+        className={`rounded-lg px-3 py-1.5 font-mono text-lg font-bold tabular-nums ${
+          danger
+            ? 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400'
+            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+        }`}
+        aria-live="polite"
+      >
+        ⏱ {formatTime(Math.max(0, remaining))}
+      </div>
+    </div>
+  );
+}
+
+interface QuestionPaletteProps {
+  questionOrder: { id: string }[];
+  answers: Answers;
+  currentIndex: number;
+  onJump: (i: number) => void;
+}
+
+function QuestionPalette({ questionOrder, answers, currentIndex, onJump }: QuestionPaletteProps) {
+  return (
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Navigation des questions">
+      {questionOrder.map((q, i) => {
+        const answered = (answers[q.id]?.length ?? 0) > 0;
+        const isCurrent = i === currentIndex;
+        const base =
+          'h-8 w-8 rounded-md text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-indigo-400';
+        const tone = isCurrent
+          ? 'bg-indigo-600 text-white'
+          : answered
+          ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:hover:bg-emerald-900'
+          : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700';
+        return (
+          <button
+            key={q.id}
+            type="button"
+            onClick={() => onJump(i)}
+            aria-label={`Question ${i + 1}`}
+            className={`${base} ${tone}`}
+          >
+            {i + 1}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+interface QuestionCardProps {
+  question: ExamView['questions'][number];
+  displayOptions: DisplayOption[];
+  selected: string[];
+  onToggle: (originalLabel: string) => void;
+  onClear: () => void;
+  index: number;
+  total: number;
+}
+
+function QuestionCard({
+  question,
+  displayOptions,
+  selected,
+  onToggle,
+  index,
+  total,
+}: QuestionCardProps) {
+  const name = `q-${question.id}`;
+  const isMultiple = question.type === 'multiple-choice';
+
+  return (
+    <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <h2 className="text-base font-semibold leading-snug">
+          <span className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded bg-slate-800 px-1.5 text-xs text-white">
+            {index + 1}/{total}
+          </span>
+          <RichText>{question.title}</RichText>
+        </h2>
+      </div>
+      <span className="mb-3 inline-block rounded bg-slate-100 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+        {isMultiple ? 'Plusieurs réponses' : 'Réponse unique'}
+      </span>
+      <fieldset className="mt-2 space-y-2">
+        <legend className="sr-only">{question.title}</legend>
+        {displayOptions.map((opt) => {
+          const checked = selected.includes(opt.originalLabel);
+          const id = `${name}-${opt.displayLabel}`;
+          return (
+            <label
+              key={opt.displayLabel}
+              htmlFor={id}
+              className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition ${
+                checked
+                  ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-950'
+                  : 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'
+              }`}
+            >
+              <input
+                id={id}
+                type={isMultiple ? 'checkbox' : 'radio'}
+                name={name}
+                value={opt.displayLabel}
+                checked={checked}
+                onChange={() => onToggle(opt.originalLabel)}
+                className="mt-0.5 h-4 w-4 accent-indigo-600"
+              />
+              <span className="flex-1 text-sm text-slate-800 dark:text-slate-200">
+                <span className="mr-1.5 font-bold text-indigo-600 dark:text-indigo-400">{opt.displayLabel}.</span>
+                <span className="flex-1">
+                  <RichText>{opt.text}</RichText>
+                </span>
+              </span>
+            </label>
+          );
+        })}
+      </fieldset>
+    </article>
+  );
+}

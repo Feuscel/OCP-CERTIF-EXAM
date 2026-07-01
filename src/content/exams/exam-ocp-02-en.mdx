@@ -1,0 +1,35 @@
+---
+id: "exam-ocp-02"
+title: "Java OCP Exam 02"
+lang: "en"
+duration_minutes: 60
+shuffle_questions: true
+shuffle_options: true
+difficulty: "medium"
+tags: ["generics", "collections"]
+questions:
+  - id: "ocp-02-001"
+    title: "Generics and Type Erasure\n```java\nList<String> a = new ArrayList<>();\nList<Object> b = a;\n```\nWhat happens?"
+    type: "single-choice"
+    options:
+      - A: "The code compiles and runs without error."
+      - B: "Compile error: incompatible types. Use `List<String>` not `List<Object>`."
+      - C: "ClassCastException at runtime."
+      - D: "The list accepts any type."
+    correct_answers: ["B"]
+    explanation_fr: "L'effacement de type rend les génériques invariants à la compilation : `List<String>` ne peut pas recevoir `List<Object>`."
+    explanation_en: "Type erasure makes generics invariant at compile time: `List<String>` cannot accept `List<Object>`."
+  - id: "ocp-02-002"
+    title: "Collections and equals/hashCode"
+    type: "multiple-choice"
+    options:
+      - A: "HashSet uses equals() to check duplicates."
+      - B: "HashMap ignores hashCode entirely."
+      - C: "Overriding equals without hashCode breaks HashMap lookups."
+      - D: "Two equal objects must have the same hashCode."
+    correct_answers: ["A", "C", "D"]
+    explanation_fr: "Les collections basées sur le hachage s'appuient sur hashCode() puis equals(). Violater le contrat equals/hashCode casse les recherches."
+    explanation_en: "Hash-based collections rely on hashCode() then equals(). Violating the equals/hashCode contract breaks lookups."
+---
+
+Java OCP Exam 02 (EN) content.

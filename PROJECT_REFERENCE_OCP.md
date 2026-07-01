@@ -1,0 +1,174 @@
+# PROJECT REFERENCE - OCP CERTIF EXAM
+
+Status: approved baseline (pre-dev)
+Date: 2026-07-01
+
+## 1) Product Goal
+Build a static web app (GitHub Pages) to train for Java OCP certification.
+The app parses Markdown/MDX content, builds interactive exams, and shows detailed reports.
+
+## 2) Tech Stack (locked)
+- Framework: Astro
+- Interactive UI/state: React
+- Styling: Tailwind CSS
+- Persistence: browser LocalStorage
+- Deployment: GitHub Actions -> GitHub Pages
+
+## 3) Repository and Hosting
+- Repository name: OCP-CERTIF-EXAM
+- Astro base path: /OCP-CERTIF-EXAM/
+- Deployment branch: main
+
+## 4) Content Model Decisions
+- UI language: bilingual FR/EN
+- Content granularity: 1 Markdown/MDX file = a batch of questions
+- Question statement location (V1): frontmatter only (no markdown body parsing for statements)
+- Code rendering (V1 amendment 2026-07-02): `title` and `options` text support a tiny markdown subset — inline `code` (backticks) and fenced ``` code blocks (triple backticks, multiline). Renders as styled `<code>` / `<pre><code>`. No other markdown features.
+- MDX support required in V1: yes
+
+## 5) Source Content Location
+- Folder: src/content/exams/
+- Allowed extensions: .md and .mdx
+
+## 6) Frontmatter Contract (strict)
+V1 exam file frontmatter must define exam-level metadata and questions array.
+
+Proposed strict schema:
+
+```yaml
+id: "exam-ocp-01"
+title: "Java OCP Exam 01"
+lang: "fr" # fr | en
+duration_minutes: 90
+shuffle_questions: true
+shuffle_options: true
+difficulty: "mixed" # easy | medium | hard | mixed
+tags: ["inheritance", "polymorphism"]
+questions:
+  - id: "ocp-01-001"
+    title: "Heritage et Polymorphisme"
+    type: "multiple-choice" # single-choice | multiple-choice
+    options:
+      - A: "L'interface compile sans erreur."
+      - B: "Une exception est levee a l'execution."
+      - C: "Erreur de compilation a la ligne 4."
+      - D: "Erreur de compilation a la ligne 5."
+    correct_answers: ["C", "D"]
+    explanation_fr: "..."
+    explanation_en: "..."
+```
+
+Validation rules:
+- Every exam must have a unique exam `id`.
+- Every question must have a unique `id` within an exam.
+- `type=single-choice` => exactly 1 correct answer.
+- `type=multiple-choice` => 1..N correct answers.
+- Option keys must be unique labels (A, B, C, ...).
+- `correct_answers` values must exist in option labels.
+
+## 7) Exam Runtime Behavior
+- Timer policy: global countdown per exam (blocking end when 0)
+- Navigation: free navigation (Previous/Next allowed)
+- Shuffle: shuffle questions + options
+- Scoring for multiple-choice: partial credit
+- Pass threshold: 60%
+
+### 7.1 Partial Credit Formula (locked)
+For a question:
+- Let C = set of correct options, U = set of user selected options.
+- Precision-like score = |U intersect C| / |U| if |U| > 0 else 0.
+- Recall-like score = |U intersect C| / |C|.
+- Question score = (precision-like + recall-like) / 2.
+- Clamp to [0, 1].
+
+Notes:
+- Selecting extra wrong options lowers score.
+- Selecting only part of the correct set gives partial credit.
+- Empty answer gives 0.
+
+## 8) Result and Review Requirements
+On submission (or timeout):
+- Compute final percent score.
+- Compute pass/fail using threshold 60%.
+- Display detailed correction per question:
+  - selected answers
+  - correct answers
+  - per-question score
+  - explanation (FR/EN)
+
+## 9) LocalStorage Requirements
+Persist by exam and globally:
+- Attempt history (unlimited retention)
+- Timestamp, exam id, duration used, score percent, pass/fail
+- Optional analytics fields: weak tags, avg score trend
+
+Suggested keys:
+- ocp.exam.attempts.v1
+- ocp.exam.settings.v1
+
+## 10) Phase-by-Phase Execution Contract
+
+### Phase 1 - Setup and Routing
+- Init Astro project with React + Tailwind.
+- Configure Astro content collections for exams.
+- Home page lists available exams from src/content/exams.
+- Set `base: "/OCP-CERTIF-EXAM/"` in astro config.
+
+Done criteria:
+- App runs locally.
+- Exam cards are generated from content files.
+- Links work with base path.
+
+### Phase 2 - Quiz Engine (React)
+- Build interactive exam component.
+- Implement global timer countdown.
+- Previous/Next navigation and direct jump if needed.
+- Store answers in React state during session.
+- Apply shuffle policies.
+
+Done criteria:
+- Full exam can be completed end-to-end.
+- Timer expiration triggers auto-submit.
+
+### Phase 3 - Evaluation and Report
+- Compare user answers with `correct_answers`.
+- Apply partial-credit formula.
+- Display final score and pass/fail.
+- Render detailed per-question correction and explanations.
+
+Done criteria:
+- Results are deterministic and reproducible.
+- Edge cases handled (unanswered, fully wrong, fully right, partial).
+
+### Phase 4 - Persistence
+- Save attempt history to LocalStorage.
+- Build simple progression view on home or profile block.
+- Keep backward-compatible schema versioning (`v1`).
+
+Done criteria:
+- Refreshing browser keeps historical attempts.
+- No crash when LocalStorage is empty or corrupted.
+
+## 11) Non-Functional Requirements
+- Fully static output compatible with GitHub Pages.
+- Mobile + desktop responsive UI.
+- Accessibility baseline: labels, keyboard navigation, contrast.
+- Deterministic parsing errors with clear messages for invalid frontmatter.
+
+## 12) Out of Scope (for initial V1 unless requested)
+- Backend/database
+- User accounts
+- Remote sync
+- Proctoring/anti-cheat
+
+## 13) Working Rules For Development
+- This file is the source of truth for implementation choices.
+- If a new requirement conflicts with this file, update this file first.
+- Each phase implementation must map to the done criteria above.
+
+## 14) First Dev Milestone Next
+Start with Phase 1:
+- scaffold Astro + React + Tailwind
+- configure content collection and base path
+- create home page listing exams
+- add one sample exam file matching this schema
