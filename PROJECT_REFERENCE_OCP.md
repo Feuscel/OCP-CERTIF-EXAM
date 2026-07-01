@@ -1,7 +1,8 @@
 # PROJECT REFERENCE - OCP CERTIF EXAM
 
-Status: approved baseline (pre-dev)
-Date: 2026-07-01
+Status: V1 complete (phases 1-4 shipped)
+Date: 2026-07-01 (initial) / 2026-07-02 (V1 completion)
+Deployed: https://feuscel.github.io/OCP-CERTIF-EXAM/
 
 ## 1) Product Goal
 Build a static web app (GitHub Pages) to train for Java OCP certification.
@@ -108,6 +109,17 @@ Suggested keys:
 
 ## 10) Phase-by-Phase Execution Contract
 
+Phase status (V1 completion):
+- [x] Phase 1 — Setup, content collection, base path, home listing
+- [x] Phase 2 — React quiz engine (timer, navigation, shuffle, answer state)
+- [x] Phase 3 — Evaluation and report (partial-credit formula, pass threshold 60%)
+- [x] Phase 4 — LocalStorage persistence + progression view
+
+V1 amendments (post-baseline, appended below the original sections):
+- Section 4: code rendering in `title`/`options` (inline + fenced blocks).
+- Dark mode toggle (header) persisted via `ocp.theme.v1` LocalStorage key.
+- GitHub Actions deploy workflow at `.github/workflows/deploy.yml`.
+
 ### Phase 1 - Setup and Routing
 - Init Astro project with React + Tailwind.
 - Configure Astro content collections for exams.
@@ -167,8 +179,4 @@ Done criteria:
 - Each phase implementation must map to the done criteria above.
 
 ## 14) First Dev Milestone Next
-Start with Phase 1:
-- scaffold Astro + React + Tailwind
-- configure content collection and base path
-- create home page listing exams
-- add one sample exam file matching this schema
+~~Start with Phase 1~~ (Done — all 4 phases shipped. See status in §10.)

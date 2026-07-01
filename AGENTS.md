@@ -21,6 +21,17 @@ See `PROJECT_REFERENCE_OCP.md` for the full locked spec (source of truth).
 
 Note: there is no separate `lint`/`typecheck` script. The strict content schema + astro check are the validators; `pnpm build` is the end-to-end verification command.
 
+## Commits
+Follow **Conventional Commits** strictly. See `CONTRIBUTING.md` for the full rules, allowed types, scopes, and examples.
+
+Quick reference:
+- Format: `<type>(<scope>): <description>`
+- Types: `feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `revert`
+- Scopes: `quiz` `report` `content` `ui` `persistence` `dx` `deps` (omit for cross-cutting)
+- Imperative subject, lowercase, ≤ 72 chars, no trailing period
+- `build` MUST pass before committing
+- One logical change per commit; never stage secrets
+
 ## Content Collection
 - Source: `src/content/exams/*.md` and `*.mdx` (1 file = 1 exam batch)
 - Schema: `src/content.config.ts` — strict zod schema with `superRefine` validating:
