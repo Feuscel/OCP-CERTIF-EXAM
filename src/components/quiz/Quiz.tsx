@@ -141,7 +141,6 @@ export default function Quiz({ exam }: Props) {
   return (
     <div className="space-y-6">
       <QuizHeader
-        title={exam.title}
         remaining={remaining}
         answeredCount={answeredCount}
         totalQuestions={questionOrder.length}
@@ -149,22 +148,12 @@ export default function Quiz({ exam }: Props) {
         onLangChange={changeLang}
       />
 
-      <div className="flex justify-center">
-        <button
-          type="button"
-          onClick={clearAnswer}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
-        >
-          Effacer
-        </button>
-      </div>
-
       <QuestionCard
         question={current}
+        examTitle={exam.title}
         displayOptions={currentDisplayOptions}
         selected={selected}
         onToggle={toggleAnswer}
-        onClear={clearAnswer}
         index={currentIndex}
         total={questionOrder.length}
         lang={lang}
@@ -185,14 +174,23 @@ export default function Quiz({ exam }: Props) {
           currentIndex={currentIndex}
           onJump={goTo}
         />
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={currentIndex === questionOrder.length - 1}
-          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-        >
-          Suivant →
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={clearAnswer}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+          >
+            Effacer
+          </button>
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={currentIndex === questionOrder.length - 1}
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          >
+            Suivant →
+          </button>
+        </div>
       </div>
 
       <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
@@ -209,7 +207,6 @@ export default function Quiz({ exam }: Props) {
 }
 
 interface QuizHeaderProps {
-  title: string;
   remaining: number;
   answeredCount: number;
   totalQuestions: number;
@@ -217,16 +214,14 @@ interface QuizHeaderProps {
   onLangChange: (lang: Lang) => void;
 }
 
-function QuizHeader({ title, remaining, answeredCount, totalQuestions, lang, onLangChange }: QuizHeaderProps) {
+function QuizHeader({ remaining, answeredCount, totalQuestions, lang, onLangChange }: QuizHeaderProps) {
   const danger = remaining <= 60;
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div>
-        <h1 className="text-lg font-bold">{title}</h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          {answeredCount}/{totalQuestions} répondues
-        </p>
-      </div>
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <p className="text-xs text-slate-500 dark:text-slate-400">
+        <span className="font-semibold text-slate-700 dark:text-slate-200">{answeredCount}/{totalQuestions}</span>{' '}
+        répondues
+      </p>
       <div className="flex items-center gap-3">
         <LanguageToggle lang={lang} onChange={onLangChange} />
         <div
@@ -282,10 +277,10 @@ function QuestionPalette({ questionOrder, answers, currentIndex, onJump }: Quest
 
 interface QuestionCardProps {
   question: ExamView['questions'][number];
+  examTitle: string;
   displayOptions: DisplayOption[];
   selected: string[];
   onToggle: (originalLabel: string) => void;
-  onClear: () => void;
   index: number;
   total: number;
   lang: Lang;
@@ -293,6 +288,7 @@ interface QuestionCardProps {
 
 function QuestionCard({
   question,
+  examTitle,
   displayOptions,
   selected,
   onToggle,
@@ -306,17 +302,20 @@ function QuestionCard({
 
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <h2 className="text-base font-semibold leading-snug">
-          <span className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded bg-slate-800 px-1.5 text-xs text-white">
-            {index + 1}/{total}
+      <div className="mb-3">
+        <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+          <span className="truncate font-semibold text-slate-600 dark:text-slate-300">{examTitle}</span>
+          <span aria-hidden="true">›</span>
+          <span>Question {index + 1}/{total}</span>
+          <span className="mx-1 text-slate-300 dark:text-slate-700" aria-hidden="true">·</span>
+          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+            {isMultiple ? 'Plusieurs réponses' : 'Réponse unique'}
           </span>
+        </div>
+        <h2 className="mt-2 text-base font-semibold leading-snug text-slate-900 dark:text-slate-100">
           <RichText>{title}</RichText>
         </h2>
       </div>
-      <span className="mb-3 inline-block rounded bg-slate-100 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-        {isMultiple ? 'Plusieurs réponses' : 'Réponse unique'}
-      </span>
       <fieldset className="mt-2 space-y-2">
         <legend className="sr-only">{title}</legend>
         {displayOptions.map((opt) => {
