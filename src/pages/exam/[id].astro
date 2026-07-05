@@ -44,12 +44,6 @@ const examView: ExamView = {
 };
 ---
 
-<Layout title={e.title}>
-  <a
-    href={base}
-    class="mb-4 inline-block text-sm text-indigo-600 hover:underline dark:text-indigo-400"
-  >
-    &larr; Retour
-  </a>
-  <Quiz exam={examView} client:load />
+<Layout title={e.title} maxWidth="max-w-7xl">
+  <Quiz exam={examView} homeUrl={base} client:load />
 </Layout>

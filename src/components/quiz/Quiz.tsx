@@ -9,6 +9,7 @@ import { LanguageToggle } from './LanguageToggle';
 
 interface Props {
   exam: ExamView;
+  homeUrl: string;
 }
 
 function formatTime(total: number): string {
@@ -21,7 +22,7 @@ function formatTime(total: number): string {
   return `${m}:${s}`;
 }
 
-export default function Quiz({ exam }: Props) {
+export default function Quiz({ exam, homeUrl }: Props) {
   const totalSeconds = exam.durationMinutes * 60;
 
   const questionOrder = useMemo(
@@ -140,6 +141,22 @@ export default function Quiz({ exam }: Props) {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <a
+          href={homeUrl}
+          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        >
+          ← Retour
+        </a>
+        <button
+          type="button"
+          onClick={confirmSubmit}
+          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        >
+          Soumettre l'examen
+        </button>
+      </div>
+
       <QuizHeader
         remaining={remaining}
         answeredCount={answeredCount}
@@ -148,59 +165,53 @@ export default function Quiz({ exam }: Props) {
         onLangChange={changeLang}
       />
 
-      <QuestionCard
-        question={current}
-        examTitle={exam.title}
-        displayOptions={currentDisplayOptions}
-        selected={selected}
-        onToggle={toggleAnswer}
-        index={currentIndex}
-        total={questionOrder.length}
-        lang={lang}
-      />
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-6 lg:items-start">
+        <div className="space-y-6">
+          <QuestionCard
+            question={current}
+            examTitle={exam.title}
+            displayOptions={currentDisplayOptions}
+            selected={selected}
+            onToggle={toggleAnswer}
+            index={currentIndex}
+            total={questionOrder.length}
+            lang={lang}
+          />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={goPrev}
-          disabled={currentIndex === 0}
-          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-        >
-          ← Précédent
-        </button>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={goPrev}
+              disabled={currentIndex === 0}
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              ← Précédent
+            </button>
+            <button
+              type="button"
+              onClick={clearAnswer}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+            >
+              Effacer
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={currentIndex === questionOrder.length - 1}
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              Suivant →
+            </button>
+          </div>
+        </div>
+
         <QuestionPalette
           questionOrder={questionOrder}
           answers={answers}
           currentIndex={currentIndex}
           onJump={goTo}
+          lang={lang}
         />
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={clearAnswer}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
-          >
-            Effacer
-          </button>
-          <button
-            type="button"
-            onClick={goNext}
-            disabled={currentIndex === questionOrder.length - 1}
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-          >
-            Suivant →
-          </button>
-        </div>
-      </div>
-
-      <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
-        <button
-          type="button"
-          onClick={confirmSubmit}
-          className="w-full rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
-        >
-          Soumettre l'examen
-        </button>
       </div>
     </div>
   );
@@ -240,38 +251,57 @@ function QuizHeader({ remaining, answeredCount, totalQuestions, lang, onLangChan
 }
 
 interface QuestionPaletteProps {
-  questionOrder: { id: string }[];
+  questionOrder: ExamView['questions'];
   answers: Answers;
   currentIndex: number;
   onJump: (i: number) => void;
+  lang: Lang;
 }
 
-function QuestionPalette({ questionOrder, answers, currentIndex, onJump }: QuestionPaletteProps) {
+function QuestionPalette({ questionOrder, answers, currentIndex, onJump, lang }: QuestionPaletteProps) {
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Navigation des questions">
-      {questionOrder.map((q, i) => {
-        const answered = (answers[q.id]?.length ?? 0) > 0;
-        const isCurrent = i === currentIndex;
-        const base =
-          'h-8 w-8 rounded-md text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-indigo-400';
-        const tone = isCurrent
-          ? 'bg-indigo-600 text-white'
-          : answered
-          ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:hover:bg-emerald-900'
-          : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700';
-        return (
-          <button
-            key={q.id}
-            type="button"
-            onClick={() => onJump(i)}
-            aria-label={`Question ${i + 1}`}
-            className={`${base} ${tone}`}
-          >
-            {i + 1}
-          </button>
-        );
-      })}
-    </div>
+    <nav
+      className="lg:max-h-[calc(100vh-16rem)] lg:overflow-y-auto rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+      aria-label="Navigation des questions"
+    >
+      <div className="space-y-1">
+        {questionOrder.map((q, i) => {
+          const answered = (answers[q.id]?.length ?? 0) > 0;
+          const isCurrent = i === currentIndex;
+          const title = lang === 'fr' ? q.titleFr : q.titleEn;
+          return (
+            <button
+              key={q.id}
+              type="button"
+              onClick={() => onJump(i)}
+              aria-label={`Question ${i + 1}`}
+              className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${
+                isCurrent
+                  ? 'bg-indigo-50 dark:bg-indigo-950'
+                  : answered
+                  ? 'hover:bg-slate-50 dark:hover:bg-slate-800'
+                  : 'hover:bg-slate-50 dark:hover:bg-slate-800'
+              }`}
+            >
+              <span
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold ${
+                  isCurrent
+                    ? 'bg-indigo-600 text-white'
+                    : answered
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                    : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                }`}
+              >
+                {i + 1}
+              </span>
+              <span className="flex-1 truncate text-xs text-slate-700 dark:text-slate-300">
+                {title}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
 
@@ -316,7 +346,7 @@ function QuestionCard({
           <RichText>{title}</RichText>
         </h2>
       </div>
-      <fieldset className="mt-2 space-y-2">
+      <fieldset className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-2">
         <legend className="sr-only">{title}</legend>
         {displayOptions.map((opt) => {
           const checked = selected.includes(opt.originalLabel);
