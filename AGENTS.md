@@ -33,21 +33,36 @@ Quick reference:
 - One logical change per commit; never stage secrets
 
 ## Content Collection
-- Source: `src/content/exams/*.md` and `*.mdx` (1 file = 1 exam batch)
+- Source: `src/content/exams/*.md` and `*.mdx` (1 file = 1 exam batch).
 - Schema: `src/content.config.ts` — strict zod schema with `superRefine` validating:
-  - unique exam `id`
   - unique question `id` per exam
   - `single-choice` => exactly 1 correct answer
-  - `multiple-choice` => >= 1 correct answer
-  - option keys are unique labels
-  - `correct_answers` values must exist in option labels
-- Content pair: `lang` (fr|en) on exam, with bilingual `*_fr`/`*_en` explanations per question.
-- Route: `src/pages/exam/[id].astro` (gets clean slug via `.replace(/\.(md|mdx)$/, '')`).
+  - `multiple-choice` => at least 1 correct answer
+  - option `label`s are unique within a question
+  - `correct_answers` values must exist in option `label`s
+- Exam-level fields: `id`, `title`, `lang` (fr|en, default/primary), `duration_minutes`, `shuffle_questions`, `shuffle_options`, `difficulty` (easy|medium|hard|mixed), `tags`, `questions`.
+- Question fields are fully bilingual: `title_fr`/`title_en`, `explanation_fr`/`explanation_en`. Each option is an object `{ label, text_fr, text_en }`.
+- `title_fr`/`title_en` and option text support a tiny markdown subset rendered by `src/components/quiz/RichText.tsx`: inline `code` (backticks) and fenced ``` code blocks (Java syntax-highlighted via `highlightJava.tsx`). No other markdown features.
+- Route: `src/pages/exam/[id].astro` (clean slug via `.replace(/\.(md|mdx)$/, '')`). Frontmatter is mapped to `ExamView`/`QuestionView` (`src/components/quiz/types.ts`) before hydration.
+
+## Key Source Locations
+- `src/components/quiz/Quiz.tsx` — quiz engine (timer, navigation, shuffle, answer state, submit)
+- `src/components/quiz/Report.tsx` — evaluation report + per-question correction
+- `src/components/quiz/scoring.ts` — partial-credit formula + `PASS_THRESHOLD = 0.6`
+- `src/components/quiz/shuffle.ts` — question/option shuffle with stable original-label mapping
+- `src/components/quiz/storage.ts` — LocalStorage attempts + settings (safe-guarded against quota/corruption)
+- `src/components/quiz/LanguageToggle.tsx` — FR/EN switch used in Quiz header and Report
+- `src/components/quiz/RichText.tsx` + `highlightJava.tsx` — markdown-subset rendering for question/option text
+- `src/components/ThemeToggle.tsx` — dark mode toggle (`ocp.theme.v1`)
+- `src/components/Progression.tsx` — attempt history / progression view on home
+- `src/layouts/Layout.astro` — applies theme pre-paint from `ocp.theme.v1` to avoid flash
 
 ## Conventions
-- Bilingual UI (FR/EN) — French is default with EN fallback fields.
-- Do not parse markdown body for statements in V1 (question statement lives in frontmatter `title`).
-- Keep schema versioning backward-compatible in LocalStorage keys (`ocp.exam.*.v1`).
+- Bilingual content (FR/EN): questions (`title_fr`/`title_en`), options (`text_fr`/`text_en`), and `explanation_*`. `exam.lang` is the default; the in-exam `LanguageToggle` switches title/option/explanation live and persists the choice.
+- UI chrome strings remain French in V1 (full UI-chrome i18n is out of scope).
+- Question statements live in frontmatter (`title_fr`/`title_en`), not the markdown body. The markdown body is not parsed for statements.
+- Dark mode is user-toggleable and persisted (`ocp.theme.v1`), applied pre-paint in `Layout.astro`.
+- Keep LocalStorage keys backward-compatible and versioned: `ocp.exam.attempts.v1`, `ocp.exam.settings.v1`, `ocp.theme.v1`. The app tolerates empty or corrupted LocalStorage without crashing.
 - No comments in source files unless explicitly requested.
 
 ## Phase Progress
@@ -56,4 +71,4 @@ Quick reference:
 - [x] Phase 3 — Evaluation and report (partial-credit formula, pass threshold 60%)
 - [x] Phase 4 — LocalStorage persistence + progression view
 
-Before starting each phase, re-read `PROJECT_REFERENCE_OCP.md` section 10 done criteria.
+All 4 phases shipped. See `PROJECT_REFERENCE_OCP.md` §10 for the phase-by-phase done criteria.

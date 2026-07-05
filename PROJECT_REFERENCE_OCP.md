@@ -24,7 +24,7 @@ The app parses Markdown/MDX content, builds interactive exams, and shows detaile
 - UI language: bilingual FR/EN
 - Content granularity: 1 Markdown/MDX file = a batch of questions
 - Question statement location (V1): frontmatter only (no markdown body parsing for statements)
-- Code rendering (V1 amendment 2026-07-02): `title` and `options` text support a tiny markdown subset — inline `code` (backticks) and fenced ``` code blocks (triple backticks, multiline). Renders as styled `<code>` / `<pre><code>`. No other markdown features.
+- Code rendering (V1 amendment 2026-07-02): `title_fr`/`title_en` and option `text_fr`/`text_en` support a tiny markdown subset — inline `code` (backticks) and fenced ``` code blocks (triple backticks, multiline). Rendered as styled `<code>` / `<pre><code>` by `src/components/quiz/RichText.tsx`. No other markdown features.
 - MDX support required in V1: yes
 
 ## 5) Source Content Location
@@ -39,7 +39,7 @@ Proposed strict schema:
 ```yaml
 id: "exam-ocp-01"
 title: "Java OCP Exam 01"
-lang: "fr" # fr | en
+lang: "fr" # fr | en — default/primary language for this exam
 duration_minutes: 90
 shuffle_questions: true
 shuffle_options: true
@@ -47,25 +47,39 @@ difficulty: "mixed" # easy | medium | hard | mixed
 tags: ["inheritance", "polymorphism"]
 questions:
   - id: "ocp-01-001"
-    title: "Heritage et Polymorphisme"
+    title_fr: "Héritage et Polymorphisme"
+    title_en: "Inheritance and Polymorphism"
     type: "multiple-choice" # single-choice | multiple-choice
     options:
-      - A: "L'interface compile sans erreur."
-      - B: "Une exception est levee a l'execution."
-      - C: "Erreur de compilation a la ligne 4."
-      - D: "Erreur de compilation a la ligne 5."
+      - label: "A"
+        text_fr: "L'interface compile sans erreur."
+        text_en: "The interface compiles without error."
+      - label: "B"
+        text_fr: "Une exception est levée à l'exécution."
+        text_en: "An exception is thrown at runtime."
+      - label: "C"
+        text_fr: "Erreur de compilation à la ligne 4."
+        text_en: "Compile error at line 4."
+      - label: "D"
+        text_fr: "Erreur de compilation à la ligne 5."
+        text_en: "Compile error at line 5."
     correct_answers: ["C", "D"]
     explanation_fr: "..."
     explanation_en: "..."
 ```
+
+Notes on the schema (enforced in `src/content.config.ts`):
+- Questions are fully bilingual via `title_fr`/`title_en`, option `text_fr`/`text_en`, and `explanation_fr`/`explanation_en`. `exam.lang` is the default/primary; the user can switch FR/EN live during the exam and the choice is persisted.
+- Each option is an object `{ label, text_fr, text_en }`. `label` is a short stable key (e.g. `A`, `B`) used by `correct_answers` and for shuffle/relabel mapping; the human text is in `text_fr`/`text_en`.
+- `title_fr`/`title_en` and option text support a tiny markdown subset (inline `code` + fenced ``` blocks, Java-highlighted) rendered by `src/components/quiz/RichText.tsx`. No other markdown features.
 
 Validation rules:
 - Every exam must have a unique exam `id`.
 - Every question must have a unique `id` within an exam.
 - `type=single-choice` => exactly 1 correct answer.
 - `type=multiple-choice` => 1..N correct answers.
-- Option keys must be unique labels (A, B, C, ...).
-- `correct_answers` values must exist in option labels.
+- Option `label`s must be unique within a question.
+- `correct_answers` values must exist in option `label`s.
 
 ## 7) Exam Runtime Behavior
 - Timer policy: global countdown per exam (blocking end when 0)
@@ -104,8 +118,11 @@ Persist by exam and globally:
 - Optional analytics fields: weak tags, avg score trend
 
 Suggested keys:
-- ocp.exam.attempts.v1
-- ocp.exam.settings.v1
+- ocp.exam.attempts.v1 — attempt history (timestamp, exam id, exam title, duration used, score percent, pass/fail, question/answered counts)
+- ocp.exam.settings.v1 — user settings (`preferredLang` for the FR/EN toggle)
+- ocp.theme.v1 — dark mode preference (managed by `src/components/ThemeToggle.tsx`)
+
+Keys are versioned (`v1`) for backward compatibility. The app tolerates empty or corrupted LocalStorage without crashing.
 
 ## 10) Phase-by-Phase Execution Contract
 
