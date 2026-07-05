@@ -1,11 +1,16 @@
 import { defineCollection, z } from 'astro:content';
 
-const optionSchema = z.record(z.string(), z.string());
+const optionSchema = z.object({
+  label: z.string(),
+  text_fr: z.string(),
+  text_en: z.string(),
+});
 
 const questionSchema = z
   .object({
     id: z.string(),
-    title: z.string(),
+    title_fr: z.string(),
+    title_en: z.string(),
     type: z.enum(['single-choice', 'multiple-choice']),
     options: z.array(optionSchema).min(1),
     correct_answers: z.array(z.string()),
@@ -13,7 +18,7 @@ const questionSchema = z
     explanation_en: z.string().default(''),
   })
   .superRefine((q, ctx) => {
-    const labels = q.options.flatMap((o) => Object.keys(o));
+    const labels = q.options.map((o) => o.label);
     const dup = labels.find((l, i) => labels.indexOf(l) !== i);
     if (dup) {
       ctx.addIssue({

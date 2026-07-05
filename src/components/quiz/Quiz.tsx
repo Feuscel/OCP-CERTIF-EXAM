@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Answers, ExamView } from './types';
+import type { Answers, ExamView, Lang } from './types';
 import { makeQuestionOrder, makeDisplayOptions, type DisplayOption } from './shuffle';
 import { evaluateExam } from './scoring';
-import { saveAttempt, type Attempt } from './storage';
+import { loadSettings, saveSettings, saveAttempt, type Attempt } from './storage';
 import Report from './Report';
 import { RichText } from './RichText';
+import { LanguageToggle } from './LanguageToggle';
 
 interface Props {
   exam: ExamView;
@@ -41,6 +42,15 @@ export default function Quiz({ exam }: Props) {
   const [remaining, setRemaining] = useState(totalSeconds);
   const [submitted, setSubmitted] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
+  const [lang, setLang] = useState<Lang>(() => {
+    const stored = loadSettings().preferredLang;
+    return stored ?? exam.lang;
+  });
+
+  const changeLang = useCallback((next: Lang) => {
+    setLang(next);
+    saveSettings({ preferredLang: next });
+  }, []);
 
   const handleSubmit = useCallback(
     (fromTimeout: boolean) => {
@@ -120,6 +130,7 @@ export default function Quiz({ exam }: Props) {
         elapsedSeconds={elapsed}
         totalSeconds={totalSeconds}
         questionOrder={questionOrder}
+        initialLang={lang}
       />
     );
   }
@@ -134,6 +145,8 @@ export default function Quiz({ exam }: Props) {
         remaining={remaining}
         answeredCount={answeredCount}
         totalQuestions={questionOrder.length}
+        lang={lang}
+        onLangChange={changeLang}
       />
 
       <div className="flex justify-center">
@@ -154,6 +167,7 @@ export default function Quiz({ exam }: Props) {
         onClear={clearAnswer}
         index={currentIndex}
         total={questionOrder.length}
+        lang={lang}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -199,9 +213,11 @@ interface QuizHeaderProps {
   remaining: number;
   answeredCount: number;
   totalQuestions: number;
+  lang: Lang;
+  onLangChange: (lang: Lang) => void;
 }
 
-function QuizHeader({ title, remaining, answeredCount, totalQuestions }: QuizHeaderProps) {
+function QuizHeader({ title, remaining, answeredCount, totalQuestions, lang, onLangChange }: QuizHeaderProps) {
   const danger = remaining <= 60;
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -211,15 +227,18 @@ function QuizHeader({ title, remaining, answeredCount, totalQuestions }: QuizHea
           {answeredCount}/{totalQuestions} répondues
         </p>
       </div>
-      <div
-        className={`rounded-lg px-3 py-1.5 font-mono text-lg font-bold tabular-nums ${
-          danger
-            ? 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400'
-            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
-        }`}
-        aria-live="polite"
-      >
-        ⏱ {formatTime(Math.max(0, remaining))}
+      <div className="flex items-center gap-3">
+        <LanguageToggle lang={lang} onChange={onLangChange} />
+        <div
+          className={`rounded-lg px-3 py-1.5 font-mono text-lg font-bold tabular-nums ${
+            danger
+              ? 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400'
+              : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+          }`}
+          aria-live="polite"
+        >
+          ⏱ {formatTime(Math.max(0, remaining))}
+        </div>
       </div>
     </div>
   );
@@ -269,6 +288,7 @@ interface QuestionCardProps {
   onClear: () => void;
   index: number;
   total: number;
+  lang: Lang;
 }
 
 function QuestionCard({
@@ -278,9 +298,11 @@ function QuestionCard({
   onToggle,
   index,
   total,
+  lang,
 }: QuestionCardProps) {
   const name = `q-${question.id}`;
   const isMultiple = question.type === 'multiple-choice';
+  const title = lang === 'fr' ? question.titleFr : question.titleEn;
 
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
@@ -289,17 +311,18 @@ function QuestionCard({
           <span className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded bg-slate-800 px-1.5 text-xs text-white">
             {index + 1}/{total}
           </span>
-          <RichText>{question.title}</RichText>
+          <RichText>{title}</RichText>
         </h2>
       </div>
       <span className="mb-3 inline-block rounded bg-slate-100 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400">
         {isMultiple ? 'Plusieurs réponses' : 'Réponse unique'}
       </span>
       <fieldset className="mt-2 space-y-2">
-        <legend className="sr-only">{question.title}</legend>
+        <legend className="sr-only">{title}</legend>
         {displayOptions.map((opt) => {
           const checked = selected.includes(opt.originalLabel);
           const id = `${name}-${opt.displayLabel}`;
+          const optText = lang === 'fr' ? opt.textFr : opt.textEn;
           return (
             <label
               key={opt.displayLabel}
@@ -322,7 +345,7 @@ function QuestionCard({
               <span className="flex-1 text-sm text-slate-800 dark:text-slate-200">
                 <span className="mr-1.5 font-bold text-indigo-600 dark:text-indigo-400">{opt.displayLabel}.</span>
                 <span className="flex-1">
-                  <RichText>{opt.text}</RichText>
+                  <RichText>{optText}</RichText>
                 </span>
               </span>
             </label>

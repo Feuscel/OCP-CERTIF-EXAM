@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
-import type { Answers, ExamView, QuestionView } from './types';
+import type { Answers, ExamView, Lang, QuestionView } from './types';
 import { evaluateExam, formatPercent, formatScore } from './scoring';
+import { saveSettings } from './storage';
 import { RichText } from './RichText';
+import { LanguageToggle } from './LanguageToggle';
 
 interface Props {
   exam: ExamView;
@@ -10,6 +12,7 @@ interface Props {
   elapsedSeconds: number;
   totalSeconds: number;
   questionOrder: QuestionView[];
+  initialLang: Lang;
 }
 
 function formatTime(total: number): string {
@@ -29,9 +32,15 @@ export default function Report({
   elapsedSeconds,
   totalSeconds,
   questionOrder,
+  initialLang,
 }: Props) {
   const result = useMemo(() => evaluateExam(exam, answers), [exam, answers]);
-  const [lang, setLang] = useState<'fr' | 'en'>(exam.lang);
+  const [lang, setLang] = useState<Lang>(initialLang);
+
+  const changeLang = (next: Lang) => {
+    setLang(next);
+    saveSettings({ preferredLang: next });
+  };
 
   return (
     <div className="space-y-6">
@@ -45,30 +54,7 @@ export default function Report({
 
       <div className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h2 className="text-base font-semibold">Correction détaillée</h2>
-        <div className="inline-flex overflow-hidden rounded-lg border border-slate-200 text-xs dark:border-slate-700">
-          <button
-            type="button"
-            onClick={() => setLang('fr')}
-            className={`px-3 py-1.5 font-medium transition ${
-              lang === 'fr'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-            }`}
-          >
-            FR
-          </button>
-          <button
-            type="button"
-            onClick={() => setLang('en')}
-            className={`px-3 py-1.5 font-medium transition ${
-              lang === 'en'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-            }`}
-          >
-            EN
-          </button>
-        </div>
+        <LanguageToggle lang={lang} onChange={changeLang} />
       </div>
 
       <ol className="space-y-4">
@@ -163,10 +149,11 @@ interface QuestionCorrectionProps {
 
 function QuestionCorrection({ index, question, score, lang }: QuestionCorrectionProps) {
   const optionMap = useMemo(
-    () => new Map(question.options.map((o) => [o.label, o.text])),
-    [question]
+    () => new Map(question.options.map((o) => [o.label, lang === 'fr' ? o.textFr : o.textEn])),
+    [question, lang]
   );
   const isMultiple = question.type === 'multiple-choice';
+  const title = lang === 'fr' ? question.titleFr : question.titleEn;
   const explanation = lang === 'fr' ? question.explanationFr : question.explanationEn;
 
   const statusTone = score.fullyCorrect
@@ -192,7 +179,7 @@ function QuestionCorrection({ index, question, score, lang }: QuestionCorrection
           <span className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded bg-slate-800 px-1.5 text-xs text-white">
             {index + 1}
           </span>
-          <RichText>{question.title}</RichText>
+          <RichText>{title}</RichText>
         </h3>
         <span
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white ${badgeTone}`}
@@ -226,7 +213,7 @@ function QuestionCorrection({ index, question, score, lang }: QuestionCorrection
             >
               <span className="font-bold">{opt.label}.</span>
               <span className="flex-1">
-                <RichText>{optionMap.get(opt.label) ?? opt.text}</RichText>
+                <RichText>{optionMap.get(opt.label) ?? (lang === 'fr' ? opt.textFr : opt.textEn)}</RichText>
               </span>
               {mark && <span className="font-bold">{mark}</span>}
             </li>

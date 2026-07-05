@@ -18,11 +18,14 @@ const base = import.meta.env.BASE_URL;
 
 const questions: QuestionView[] = e.questions.map((q) => ({
   id: q.id,
-  title: q.title,
+  titleFr: q.title_fr,
+  titleEn: q.title_en,
   type: q.type,
-  options: q.options.flatMap((o) =>
-    Object.entries(o).map(([label, text]) => ({ label, text }))
-  ),
+  options: q.options.map((o) => ({
+    label: o.label,
+    textFr: o.text_fr,
+    textEn: o.text_en,
+  })),
   correctAnswers: q.correct_answers,
   explanationFr: q.explanation_fr,
   explanationEn: q.explanation_en,

@@ -119,6 +119,7 @@ V1 amendments (post-baseline, appended below the original sections):
 - Section 4: code rendering in `title`/`options` (inline + fenced blocks).
 - Dark mode toggle (header) persisted via `ocp.theme.v1` LocalStorage key.
 - GitHub Actions deploy workflow at `.github/workflows/deploy.yml`.
+- Bilingual question+option content (2026-07-05): question `title` and option text become fully bilingual via `title_fr`/`title_en` and per-option `text_fr`/`text_en` (mirroring the existing `explanation_*` pattern). `exam.lang` stays as the default/primary language. An FR/EN `LanguageToggle` is added during the exam (Quiz header) and reused in the Report; it switches question title, option text, and explanation live. The user's last choice is persisted via the existing `ocp.exam.settings.v1` key (`preferredLang`, previously dead code — now wired in). UI chrome strings remain French in V1; full UI chrome i18n is future work and intentionally out of scope here.
 
 ### Phase 1 - Setup and Routing
 - Init Astro project with React + Tailwind.

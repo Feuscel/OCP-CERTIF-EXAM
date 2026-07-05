@@ -14,7 +14,8 @@ const ALPHA = 'ABCDEFGHIJKLMNOP';
 export interface DisplayOption {
   displayLabel: string;
   originalLabel: string;
-  text: string;
+  textFr: string;
+  textEn: string;
 }
 
 export function makeQuestionOrder(
@@ -29,6 +30,7 @@ export function makeDisplayOptions(question: QuestionView, enabled: boolean): Di
   return originals.map((o: OptionView, i: number) => ({
     displayLabel: ALPHA[i] ?? `#${i + 1}`,
     originalLabel: o.label,
-    text: o.text,
+    textFr: o.textFr,
+    textEn: o.textEn,
   }));
 }

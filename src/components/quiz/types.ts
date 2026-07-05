@@ -1,13 +1,16 @@
 export type ChoiceType = 'single-choice' | 'multiple-choice';
+export type Lang = 'fr' | 'en';
 
 export interface OptionView {
   label: string;
-  text: string;
+  textFr: string;
+  textEn: string;
 }
 
 export interface QuestionView {
   id: string;
-  title: string;
+  titleFr: string;
+  titleEn: string;
   type: ChoiceType;
   options: OptionView[];
   correctAnswers: string[];
@@ -18,7 +21,7 @@ export interface QuestionView {
 export interface ExamView {
   id: string;
   title: string;
-  lang: 'fr' | 'en';
+  lang: Lang;
   durationMinutes: number;
   shuffleQuestions: boolean;
   shuffleOptions: boolean;
