@@ -27,6 +27,40 @@ const COLORS: Record<string, string> = {
   number: 'text-orange-300',
 };
 
+export function formatJava(code: string): string {
+  const lines = code.split('\n');
+  const result: string[] = [];
+  let indent = 0;
+  const INDENT = '    ';
+
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) continue;
+
+    // Count braces on this line
+    const opens = (line.match(/\{/g) || []).length;
+    const closes = (line.match(/\}/g) || []).length;
+
+    // If line starts with closing brace, decrease indent before printing
+    if (line.startsWith('}')) {
+      indent = Math.max(0, indent - closes);
+    }
+
+    result.push(INDENT.repeat(Math.max(0, indent)) + line);
+
+    // Adjust indent for next line (only if we didn't already adjust for closing brace)
+    if (!line.startsWith('}')) {
+      indent += opens - closes;
+    } else {
+      // For lines starting with }, we already decreased, now add any opens
+      indent += opens;
+    }
+    indent = Math.max(0, indent);
+  }
+
+  return result.join('\n');
+}
+
 export function highlightJava(code: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
   const re = new RegExp(TOKEN_RE.source, 'g');

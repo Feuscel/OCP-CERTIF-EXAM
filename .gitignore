@@ -17,4 +17,4 @@ npm-debug.*
 .env.production
 
 # os
-.DS_Store
+.DS_Store\n.verification/

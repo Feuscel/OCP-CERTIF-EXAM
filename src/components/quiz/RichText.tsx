@@ -1,5 +1,5 @@
 import React from 'react';
-import { highlightJava } from './highlightJava.tsx';
+import { highlightJava, formatJava } from './highlightJava.tsx';
 
 const FENCE_RE = /```([\s\S]*?)```/g;
 const INLINE_RE = /`([^`]+)`/g;
@@ -63,7 +63,7 @@ export function RichText({ children }: { children: string }) {
               key={`b${i}`}
               className="my-2 overflow-x-auto rounded-lg bg-slate-900 p-3 text-sm text-slate-100"
             >
-              <code className="font-mono whitespace-pre">{highlightJava(seg.content)}</code>
+              <code className="font-mono whitespace-pre">{highlightJava(formatJava(seg.content))}</code>
             </pre>
           );
         }
