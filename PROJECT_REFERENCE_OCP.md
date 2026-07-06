@@ -24,7 +24,7 @@ The app parses Markdown/MDX content, builds interactive exams, and shows detaile
 - UI language: bilingual FR/EN
 - Content granularity: 1 Markdown/MDX file = a batch of questions
 - Question statement location (V1): frontmatter only (no markdown body parsing for statements)
-- Code rendering (V1 amendment 2026-07-02): `title_fr`/`title_en` and option `text_fr`/`text_en` support a tiny markdown subset — inline `code` (backticks) and fenced ``` code blocks (triple backticks, multiline). Rendered as styled `<code>` / `<pre><code>` by `src/components/quiz/RichText.tsx`. No other markdown features.
+- Code rendering (V1 amendment 2026-07-02): `title_fr`/`title_en` and option `text_fr`/`text_en` support a tiny markdown subset — inline `code` (backticks) and fenced \`\`\` code blocks (triple backticks, multiline). Rendered as styled `<code>` / `<pre><code>` by `src/components/quiz/RichText.tsx`. No other markdown features.
 - MDX support required in V1: yes
 
 ## 5) Source Content Location
