@@ -61,8 +61,8 @@ Agreed plan from 2026-07-15 grill-me session.
 - Tweak extractor if new formatting patterns appear
 
 ## Phase Progress
-- [ ] Phase 1 — Test foundations (Vitest + scoring tests)
-- [ ] Phase 2 — Fix scripts/
-- [ ] Phase 3 — Unit test coverage
+- [x] Phase 1 — Test foundations (Vitest + scoring tests) — PR #1 merged
+- [x] Phase 2 — Fix scripts/ — PR #2 merged
+- [x] Phase 3 — Unit test coverage — PR #3 merged
 - [ ] Phase 4 — Batch extraction (chapters 3-5)
 - [ ] Phase 5 — Iteration (chapters 6-21)
