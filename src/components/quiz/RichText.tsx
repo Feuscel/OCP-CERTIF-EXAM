@@ -61,7 +61,7 @@ export function RichText({ children }: { children: string }) {
           return (
             <pre
               key={`b${i}`}
-              className="my-2 overflow-x-auto rounded-lg bg-slate-900 p-3 text-sm text-slate-100"
+              className="my-2 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
             >
               <code className="font-mono whitespace-pre">{highlightJava(formatJava(seg.content))}</code>
             </pre>
