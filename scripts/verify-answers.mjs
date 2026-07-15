@@ -1,10 +1,27 @@
 // @ts-check
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { execSync } from 'child_process';
-import { globSync } from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const TMP_DIR = '/home/feufeu/Projects/OCP-exam/.verification';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const TMP_DIR = `${__dirname}/../.verification`;
 const RAW_BASE = 'https://raw.githubusercontent.com/eh3rrera/ocpj21-book/main';
+const EXAMS_DIR = `${__dirname}/../src/content/exams`;
+
+const args = process.argv.slice(2);
+let chapters = [];
+
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--chapter' && args[i + 1]) {
+    chapters.push(parseInt(args[i + 1]));
+    i++;
+  }
+}
+
+if (chapters.length === 0) {
+  chapters = [1, 2];
+}
 
 /**
  * Extract Java code blocks from a string
@@ -126,7 +143,6 @@ function inferExpectedOutput(title, correctLabels) {
 async function main() {
   mkdirSync(TMP_DIR, { recursive: true });
 
-  const chapters = [1, 2];
   const results = [];
 
   for (const ch of chapters) {
@@ -203,11 +219,11 @@ async function main() {
     let examContent;
     try {
       examContent = readFileSync(
-        `/home/feufeu/Projects/OCP-exam/src/content/exams/ch${pad}.mdx`,
+        `${EXAMS_DIR}/ch${pad}.mdx`,
         'utf-8'
       );
     } catch (e) {
-      console.error(`  Cannot read exam file for chapter ${pad}`);
+      console.error(`  Cannot read exam file for chapter ${pad}: ${e.message}`);
       continue;
     }
 
