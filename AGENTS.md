@@ -18,6 +18,8 @@ See `PROJECT_REFERENCE_OCP.md` for the full locked spec (source of truth).
 - `pnpm build` — production build to `dist/` (validate content collection schema + typecheck + emit static pages)
 - `pnpm preview` — preview the built site
 - `pnpm astro check` — TypeScript/astro diagnostics for `.astro` files
+- `pnpm test` — run unit tests (Vitest)
+- `pnpm test:watch` — run tests in watch mode
 
 Note: there is no separate `lint`/`typecheck` script. The strict content schema + astro check are the validators; `pnpm build` is the end-to-end verification command.
 
@@ -72,3 +74,6 @@ Quick reference:
 - [x] Phase 4 — LocalStorage persistence + progression view
 
 All 4 phases shipped. See `PROJECT_REFERENCE_OCP.md` §10 for the phase-by-phase done criteria.
+
+## Next Steps
+See [`ROADMAP.md`](./ROADMAP.md) for the agreed plan covering tests, script fixes, batch extraction pipeline, and progressive chapter coverage (2→5→10→21).
