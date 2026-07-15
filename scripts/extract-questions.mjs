@@ -1,13 +1,47 @@
 // @ts-check
 import { readFileSync, writeFileSync } from 'fs';
-import { execSync } from 'child_process';
 
 const RAW_BASE = 'https://raw.githubusercontent.com/eh3rrera/ocpj21-book/main';
 
-const CHAPTERS = [
+const ALL_CHAPTERS = [
   { num: 1, title: 'Utilizing Java Object-Oriented Approach - Part 1', tags: ['oop', 'classes', 'objects', 'nested-classes'] },
   { num: 2, title: 'Utilizing Java Object-Oriented Approach - Part 2', tags: ['oop', 'inheritance', 'polymorphism', 'interfaces'] },
+  { num: 3, title: 'Creating and Using Arrays', tags: ['arrays', 'collections', 'generics'] },
+  { num: 4, title: 'String Processing', tags: ['string', 'stringbuilder', 'regex'] },
+  { num: 5, title: 'Lambdas and Functional Interfaces', tags: ['lambdas', 'functional-interfaces', 'streams'] },
+  { num: 6, title: 'Java Class Design', tags: ['class-design', 'access-modifiers', 'enums'] },
+  { num: 7, title: 'Advanced Java Class Design', tags: ['abstract-classes', 'interfaces', 'annotations'] },
+  { num: 8, title: 'Generics and Collections', tags: ['generics', 'collections', 'maps'] },
+  { num: 9, title: 'Streams and Pipelines', tags: ['streams', 'pipelines', 'java.util.stream'] },
+  { num: 10, title: 'Exceptions and Assertions', tags: ['exceptions', 'try-with-resources', 'assertions'] },
+  { num: 11, title: 'Modular Programming', tags: ['modules', 'module-path', 'services'] },
+  { num: 12, title: 'Concurrency', tags: ['concurrency', 'threads', 'executors'] },
+  { num: 13, title: 'Atomic Operations and Concurrent Collections', tags: ['atomic', 'concurrent-collections', 'locks'] },
+  { num: 14, title: 'Parallel Streams', tags: ['parallel-streams', 'reduction', 'collectors'] },
+  { num: 15, title: 'I/O API (NIO.2)', tags: ['io', 'nio', 'paths', 'files'] },
+  { num: 16, title: 'JDBC', tags: ['jdbc', 'database', 'sql'] },
+  { num: 17, title: 'Localization', tags: ['localization', 'resourcebundle', 'formatting'] },
+  { num: 18, title: 'Security', tags: ['security', 'encryption', 'authentication'] },
+  { num: 19, title: 'Java Platform Module System', tags: ['jpms', 'module-info', 'exports'] },
+  { num: 20, title: 'Annotations', tags: ['annotations', 'meta-annotations', 'custom-annotations'] },
+  { num: 21, title: 'Design Patterns', tags: ['design-patterns', 'singleton', 'factory'] },
 ];
+
+const args = process.argv.slice(2);
+let chapters = [];
+
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--chapter' && args[i + 1]) {
+    chapters.push(parseInt(args[i + 1]));
+    i++;
+  }
+}
+
+if (chapters.length === 0) {
+  chapters = [1, 2];
+}
+
+console.log(`Extracting chapters: ${chapters.join(', ')}`);
 
 /**
  * @param {string} url
@@ -27,6 +61,9 @@ function extractQuestions(markdown) {
   let current = null;
   let inPracticeQuestions = false;
   let pendingOption = null;
+  let inCode = false;
+  let isJavaBlock = false;
+  let currentCode = '';
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -51,16 +88,45 @@ function extractQuestions(markdown) {
         num: parseInt(qMatch[1]),
         stem: qMatch[2].trim(),
         options: [],
+        code: '',
       };
+      inCode = false;
+      isJavaBlock = false;
+      currentCode = '';
       continue;
     }
 
     if (!current) continue;
 
-    // Check for option label
+    // Check for code block start
+    if (trimmed.startsWith('```') && !inCode) {
+      isJavaBlock = trimmed.toLowerCase().startsWith('```java');
+      if (isJavaBlock) {
+        inCode = true;
+        continue;
+      }
+    }
+
+    // Check for code block end
+    if (trimmed === '```' && inCode) {
+      inCode = false;
+      isJavaBlock = false;
+      continue;
+    }
+
+    if (inCode) {
+      currentCode += line + '\n';
+      continue;
+    }
+
+    // When we hit a new option, store accumulated code
     const optMatch = trimmed.match(/^\*\*([A-Z])\)\*\*(.*)/);
     if (optMatch) {
       if (pendingOption) current.options.push(pendingOption);
+      if (currentCode.trim()) {
+        current.code = currentCode.trim();
+        currentCode = '';
+      }
       pendingOption = {
         label: optMatch[1],
         text: optMatch[2].trim(),
@@ -225,21 +291,10 @@ function determineType(qStem, options, correctLabels) {
  * @param {{ label: string; text: string }[]} options
  * @param {{ text: string; isCorrect: boolean | null; explanation: string }} [optAnswer]
  */
-function buildQuestionTitle(stem, code, options, optAnswer) {
+function buildQuestionTitle(stem, code) {
   let title = stem;
-  if (code) title += '\n' + code;
+  if (code) title += '\n```java\n' + code + '\n```';
   return title.trim();
-}
-
-/**
- * @param {string} text
- */
-function escapeYaml(text) {
-  if (!text) return '';
-  if (text.includes("'") || text.includes('\n') || text.includes(':') || text.includes('#') || text.includes('"')) {
-    return text.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-  }
-  return text;
 }
 
 /**
@@ -263,8 +318,9 @@ function toYamlValue(text) {
 
 async function main() {
   const outDir = new URL('../src/content/exams/', import.meta.url).pathname;
+  const chaptersToShow = ALL_CHAPTERS.filter(ch => chapters.includes(ch.num));
 
-  for (const ch of CHAPTERS) {
+  for (const ch of chaptersToShow) {
     const pad = String(ch.num).padStart(2, '0');
 
     console.log(`\n--- Processing Chapter ${pad}: ${ch.title} ---`);
@@ -292,13 +348,14 @@ async function main() {
       }
 
       const type = determineType(q.stem, q.options, a.correct);
-      const title = buildQuestionTitle(q.stem, q.code, q.options, a);
+      const titleEn = buildQuestionTitle(q.stem, q.code);
+      const titleFr = q.stem;
       const explanation = buildExplanation(a.options, a.correct);
 
       matched.push({
         id: `ch${pad}-${String(q.num).padStart(3, '0')}`,
-        title_en: title,
-        title_fr: title,
+        title_en: titleEn,
+        title_fr: titleFr,
         type,
         options: q.options.map(o => ({
           label: o.label,
