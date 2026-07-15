@@ -45,6 +45,8 @@ pnpm dev       # start the dev server (http://localhost:4321/OCP-CERTIF-EXAM/)
 | `pnpm build`        | Production build to `dist/` (validates content schema + emits static pages) |
 | `pnpm preview`      | Preview the built site                                                      |
 | `pnpm astro check`  | TypeScript / `.astro` diagnostics                                          |
+| `pnpm test`         | Run unit tests (Vitest)                                                    |
+| `pnpm test:watch`   | Run tests in watch mode                                                    |
 
 There is no separate `lint` / `typecheck` script. **`pnpm build` is the end-to-end verification command** — run it before committing.
 
@@ -62,6 +64,11 @@ There is no separate `lint` / `typecheck` script. **`pnpm build` is the end-to-e
 │   │   ├── Progression.tsx         # Attempt history / progression view
 │   │   ├── ThemeToggle.tsx         # Dark mode toggle
 │   │   └── quiz/                   # Quiz engine + report components
+│   │       ├── scoring.ts           # Partial-credit formula
+│   │       ├── scoring.test.ts      # Unit tests for scoring
+│   │       ├── shuffle.ts           # Question/option shuffle
+│   │       ├── storage.ts           # LocalStorage persistence
+│   │       └── ...
 │   ├── content/
 │   │   └── exams/                  # Exam batches (1 .md/.mdx file = 1 batch)
 │   ├── content.config.ts           # Strict zod schema (with superRefine)
@@ -82,7 +89,7 @@ Exam files live in `src/content/exams/` and may be `.md` or `.mdx`. **One file =
 ```yaml
 id: "exam-ocp-01"
 title: "Java OCP Exam 01"
-lang: "fr" # fr | en
+lang: "fr" # fr | en — default/primary language
 duration_minutes: 90
 shuffle_questions: true
 shuffle_options: true
@@ -90,16 +97,25 @@ difficulty: "mixed" # easy | medium | hard | mixed
 tags: ["inheritance", "polymorphism"]
 questions:
   - id: "ocp-01-001"
-    title: "Heritage et Polymorphisme"
+    title_fr: "Héritage et Polymorphisme"
+    title_en: "Inheritance and Polymorphism"
     type: "multiple-choice" # single-choice | multiple-choice
     options:
-      - A: "L'interface compile sans erreur."
-      - B: "Une exception est levee a l'execution."
-      - C: "Erreur de compilation a la ligne 4."
-      - D: "Erreur de compilation a la ligne 5."
+      - label: "A"
+        text_fr: "L'interface compile sans erreur."
+        text_en: "The interface compiles without error."
+      - label: "B"
+        text_fr: "Une exception est levée à l'exécution."
+        text_en: "An exception is thrown at runtime."
+      - label: "C"
+        text_fr: "Erreur de compilation à la ligne 4."
+        text_en: "Compile error at line 4."
+      - label: "D"
+        text_fr: "Erreur de compilation à la ligne 5."
+        text_en: "Compile error at line 5."
     correct_answers: ["C", "D"]
-    explanation_fr: "..."
-    explanation_en: "..."
+    explanation_fr: "La redéfinition d'une méthode héritée doit respecter la signature et la visibilité. Une visibilité réduite provoque une erreur de compilation."
+    explanation_en: "Overriding an inherited method must respect the signature and visibility. A narrower visibility causes a compile error."
 ```
 
 ### Validation Rules
