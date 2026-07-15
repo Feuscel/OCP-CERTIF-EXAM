@@ -17,6 +17,13 @@ Agreed plan from 2026-07-15 grill-me session.
 | 9 | End-to-end pipeline | Extract → Validate Java snippets → PR → Translate → Merge → Build |
 | 10 | Extractor architecture | **Pattern matching (regex)**, better structured |
 
+## Workflow Rules
+
+- **One branch per phase.** Each phase gets its own branch and PR.
+- **Never start a phase until the previous phase is merged to main.**
+- Verify `git log main` contains the previous phase's merge commit before checking out a new branch.
+- Commit messages follow Conventional Commits (`feat(scope): ...`, `fix(scope): ...`).
+
 ## Phases
 
 ### Phase 1 — Test foundations
