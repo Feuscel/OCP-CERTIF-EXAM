@@ -16,15 +16,15 @@ const TOKEN_RE = new RegExp(
 );
 
 const COLORS: Record<string, string> = {
-  lineComment: 'text-slate-500 italic',
-  blockComment: 'text-slate-500 italic',
-  string: 'text-amber-300',
-  char: 'text-amber-300',
-  annotation: 'text-pink-400',
-  keyword: 'text-fuchsia-400 font-semibold',
-  primitive: 'text-sky-400',
-  type: 'text-emerald-400',
-  number: 'text-orange-300',
+  lineComment: 'text-slate-600 italic dark:text-slate-500',
+  blockComment: 'text-slate-600 italic dark:text-slate-500',
+  string: 'text-amber-700 dark:text-amber-300',
+  char: 'text-amber-700 dark:text-amber-300',
+  annotation: 'text-pink-600 dark:text-pink-400',
+  keyword: 'text-fuchsia-700 font-semibold dark:text-fuchsia-400',
+  primitive: 'text-sky-700 dark:text-sky-400',
+  type: 'text-emerald-700 dark:text-emerald-400',
+  number: 'text-orange-700 dark:text-orange-300',
 };
 
 export function formatJava(code: string): string {
