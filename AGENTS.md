@@ -34,6 +34,12 @@ Quick reference:
 - `build` MUST pass before committing
 - One logical change per commit; never stage secrets
 
+## Branching
+- **One branch per phase.** Each phase gets its own branch and PR.
+- **Never start a phase until the previous phase is merged to main.**
+- Before checking out a new branch, verify `git log main` contains the previous phase's merge commit.
+- Branch naming: `feat/<scope>`, `fix/<scope>`, `test/<scope>`.
+
 ## Content Collection
 - Source: `src/content/exams/*.md` and `*.mdx` (1 file = 1 exam batch).
 - Schema: `src/content.config.ts` — strict zod schema with `superRefine` validating:
