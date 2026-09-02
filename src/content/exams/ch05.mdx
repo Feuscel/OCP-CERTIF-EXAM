@@ -1,0 +1,234 @@
+---
+id: "ch05"
+title: "Chapter 5 - Lambdas and Functional Interfaces"
+lang: "en"
+duration_minutes: 20
+shuffle_questions: true
+shuffle_options: true
+difficulty: "medium"
+tags: ["lambdas", "functional-interfaces", "streams"]
+questions:
+  - id: "ch05-001"
+    title_fr: "What will be the output of the following program?"
+    title_en: "What will be the output of the following program?\n```java\npublic class IfStatementTest {\n    public static void main(String[] args) {\n        int x = 10;\n        if (x > 5) {\n            if (x < 20) {\n                System.out.println(\"x is between 5 and 20\");\n            }\n        } else {\n            System.out.println(\"x is 5 or less\");\n        }\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "`x is between 5 and 20`"
+        text_en: "`x is between 5 and 20`"
+      - label: "B"
+        text_fr: "`x is 5 or less`"
+        text_en: "`x is 5 or less`"
+      - label: "C"
+        text_fr: "`x is greater than 20`"
+        text_en: "`x is greater than 20`"
+      - label: "D"
+        text_fr: "The program does not compile"
+        text_en: "The program does not compile"
+      - label: "E"
+        text_fr: "The program compiles but does not produce any output"
+        text_en: "The program compiles but does not produce any output"
+    correct_answers: ["A"]
+    explanation_fr: "A) Correct: The value of `x` is 10, which satisfies both conditions in the nested `if` statements (`x > 5` and `x < 20`). Therefore, the program prints `\"x is between 5 and 20\"`. B) Incorrect: The value of `x` is 10, which does not satisfy the condition `x <= 5` in the `else` block. Therefore, this message will not be printed. C) Incorrect: The value of `x` is 10, which does not satisfy the condition `x > 20`. Therefore, this message will not be printed. D) Incorrect: The program compiles successfully without any errors. E) Incorrect: The program produces output because the value of `x` satisfies the conditions within the nested `if` statements, leading to the output `\"x is between 5 and 20\"`."
+    explanation_en: "A) Correct: The value of `x` is 10, which satisfies both conditions in the nested `if` statements (`x > 5` and `x < 20`). Therefore, the program prints `\"x is between 5 and 20\"`. B) Incorrect: The value of `x` is 10, which does not satisfy the condition `x <= 5` in the `else` block. Therefore, this message will not be printed. C) Incorrect: The value of `x` is 10, which does not satisfy the condition `x > 20`. Therefore, this message will not be printed. D) Incorrect: The program compiles successfully without any errors. E) Incorrect: The program produces output because the value of `x` satisfies the conditions within the nested `if` statements, leading to the output `\"x is between 5 and 20\"`."
+  - id: "ch05-002"
+    title_fr: "Given the following code:\nWhich of the following options correctly uses record pattern matching in an `if` statement to extract and print the name and age of a `Person` record in Java 21?"
+    title_en: "Given the following code:\nWhich of the following options correctly uses record pattern matching in an `if` statement to extract and print the name and age of a `Person` record in Java 21?\n```java\nif (emp instanceof Employee(var id, Person(var name, var age))) {\n    System.out.println(name + \" is \" + age + \" years old.\");\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: ''
+        text_en: ''
+      - label: "B"
+        text_fr: ''
+        text_en: ''
+      - label: "C"
+        text_fr: ''
+        text_en: ''
+      - label: "D"
+        text_fr: ''
+        text_en: ''
+      - label: "E"
+        text_fr: ''
+        text_en: ''
+    correct_answers: ["D"]
+    explanation_fr: ''
+    explanation_en: ''
+  - id: "ch05-003"
+    title_fr: "Which of the following code snippets compile without error?"
+    title_en: "Which of the following code snippets compile without error?\n```java\npublic class FlowScopingTest {\n    public static void main(String[] args) {\n        int x = 10;\n        if (x > 5) {\n            int y = x * 2;\n        }\n        // Code snippet 1\n        System.out.println(y);\n\n        if (x < 20) {\n            int z = x + 5;\n        }\n        // Code snippet 2\n        z += 5;\n\n        int a = 5;\n        if (a > 0) {\n            a = 15;\n        }\n        // Code snippet 3\n        System.out.println(a);\n\n        if (x > 0) {\n            int b = x + 3;\n            if (b > 15) {\n                b -= 2;\n            }\n        }\n        // Code snippet 4\n        System.out.println(b);\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "Code snippet 1"
+        text_en: "Code snippet 1"
+      - label: "B"
+        text_fr: "Code snippet 2"
+        text_en: "Code snippet 2"
+      - label: "C"
+        text_fr: "Code snippet 3"
+        text_en: "Code snippet 3"
+      - label: "D"
+        text_fr: "None of the above"
+        text_en: "None of the above"
+    correct_answers: ["C"]
+    explanation_fr: "A) Incorrect: The variable `y` is declared inside the first `if` statement and is not accessible outside its block. Therefore, trying to print `y` outside its scope results in a compilation error. B) Incorrect: The variable `z` is declared inside the second `if` statement and is not accessible outside its block. Therefore, attempting to use `z` outside its scope results in a compilation error. C) Correct: The variable `a` is declared outside the `if` statement, so it is accessible both inside and outside the `if` block. Reassigning a inside the `if` block is allowed. D) Incorrect: While it's true that code snippets 1, 2 and 4 will not compile, code snippet 3 does compile without any errors. Therefore, the answer cannot be \"none of the above\"."
+    explanation_en: "A) Incorrect: The variable `y` is declared inside the first `if` statement and is not accessible outside its block. Therefore, trying to print `y` outside its scope results in a compilation error. B) Incorrect: The variable `z` is declared inside the second `if` statement and is not accessible outside its block. Therefore, attempting to use `z` outside its scope results in a compilation error. C) Correct: The variable `a` is declared outside the `if` statement, so it is accessible both inside and outside the `if` block. Reassigning a inside the `if` block is allowed. D) Incorrect: While it's true that code snippets 1, 2 and 4 will not compile, code snippet 3 does compile without any errors. Therefore, the answer cannot be \"none of the above\"."
+  - id: "ch05-004"
+    title_fr: "What will be the output of the following program?"
+    title_en: "What will be the output of the following program?\n```java\npublic class SwitchTest {\n    public static void main(String[] args) {\n        int dayOfWeek = 3;\n        String dayType;\n        switch (dayOfWeek) {\n            case 1:\n            case 7:\n                dayType = \"Weekend\";\n                break;\n            case 2:\n            case 3:\n            case 4:\n            case 5:\n            case 6:\n                dayType = \"Weekday\";\n                break;\n            default:\n                dayType = \"Invalid day\";\n        }\n        System.out.println(dayType);\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "`Weekend`"
+        text_en: "`Weekend`"
+      - label: "B"
+        text_fr: "`Invalid day`"
+        text_en: "`Invalid day`"
+      - label: "C"
+        text_fr: "`Weekday`"
+        text_en: "`Weekday`"
+      - label: "D"
+        text_fr: "The program does not compile"
+        text_en: "The program does not compile"
+      - label: "E"
+        text_fr: "The program compiles but does not produce any output"
+        text_en: "The program compiles but does not produce any output"
+    correct_answers: ["C"]
+    explanation_fr: "A) Incorrect: The value of `dayOfWeek` is 3, which does not match cases 1 or 7, so it does not print `\"Weekend\"`. B) Incorrect: The default case is not executed because the value of `dayOfWeek` matches one of the specific cases (2, 3, 4, 5, or 6). C) Correct: The value of `dayOfWeek` is 3, which matches case 3. Therefore, the variable `dayType` is set to `\"Weekday\"`, and this value is printed. D) Incorrect: The program compiles without errors. E) Incorrect: The program compiles and produces output, which is `\"Weekday\"` based on the given `dayOfWeek` value."
+    explanation_en: "A) Incorrect: The value of `dayOfWeek` is 3, which does not match cases 1 or 7, so it does not print `\"Weekend\"`. B) Incorrect: The default case is not executed because the value of `dayOfWeek` matches one of the specific cases (2, 3, 4, 5, or 6). C) Correct: The value of `dayOfWeek` is 3, which matches case 3. Therefore, the variable `dayType` is set to `\"Weekday\"`, and this value is printed. D) Incorrect: The program compiles without errors. E) Incorrect: The program compiles and produces output, which is `\"Weekday\"` based on the given `dayOfWeek` value."
+  - id: "ch05-005"
+    title_fr: "What will be the output of the following program?"
+    title_en: "What will be the output of the following program?\n```java\npublic class SwitchExpressionTest {\n    public static void main(String[] args) {\n        int score = 85;\n        String grade = switch (score) {\n            case 90, 100 -> \"A\";\n            case 80, 89 -> \"B\";\n            case 70, 79 -> \"C\";\n            case 60, 69 -> \"D\";\n            default -> \"F\";\n        };\n        System.out.println(grade);\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "`A`"
+        text_en: "`A`"
+      - label: "B"
+        text_fr: "`F`"
+        text_en: "`F`"
+      - label: "C"
+        text_fr: "The program does not compile"
+        text_en: "The program does not compile"
+      - label: "D"
+        text_fr: "`B`"
+        text_en: "`B`"
+      - label: "E"
+        text_fr: "The program compiles but does not produce any output"
+        text_en: "The program compiles but does not produce any output"
+    correct_answers: ["B"]
+    explanation_fr: "A) Incorrect: The value of `score` is 85, which does not match the cases for 90 or 100. Therefore, it does not print `\"A\"`. B) Correct: The default case is executed because the value of `score` doesn't match any of the other `case` statements. C) Incorrect: The program uses a `switch` expression correctly, compiling without errors. D) Incorrect: The value of `score` is 85, which doesn't match the case for 80 or 89. E) Incorrect: The program compiles and produces output, which is `\"F\"` based on the given `score` value."
+    explanation_en: "A) Incorrect: The value of `score` is 85, which does not match the cases for 90 or 100. Therefore, it does not print `\"A\"`. B) Correct: The default case is executed because the value of `score` doesn't match any of the other `case` statements. C) Incorrect: The program uses a `switch` expression correctly, compiling without errors. D) Incorrect: The value of `score` is 85, which doesn't match the case for 80 or 89. E) Incorrect: The program compiles and produces output, which is `\"F\"` based on the given `score` value."
+  - id: "ch05-006"
+    title_fr: "Given the following code:\nWhich of the following `case` statements are valid in Java 21 when inserted in the `switch` expression?"
+    title_en: "Given the following code:\nWhich of the following `case` statements are valid in Java 21 when inserted in the `switch` expression?\n```java\ncase CarType.SEDAN || CarType.HATCHBACK -> System.out.println(\"Compact vehicle\");\ncase CarType.SUV -> System.out.println(\"Large vehicle\");\ncase CarType.CONVERTIBLE -> System.out.println(\"Open-top vehicle\");\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: ''
+        text_en: ''
+      - label: "B"
+        text_fr: ''
+        text_en: ''
+      - label: "C"
+        text_fr: ''
+        text_en: ''
+      - label: "D"
+        text_fr: ''
+        text_en: ''
+    correct_answers: ["A"]
+    explanation_fr: ''
+    explanation_en: ''
+  - id: "ch05-007"
+    title_fr: "Given the following code:\nWhich of the following `case` statements correctly implements pattern matching for the `Shap`e hierarchy when inserted in the `switch` expression?"
+    title_en: "Given the following code:\nWhich of the following `case` statements correctly implements pattern matching for the `Shap`e hierarchy when inserted in the `switch` expression?\n```java\ncase Shape s when s instanceof Circle ->\n        Math.PI * ((Circle)s).radius() * ((Circle)s).radius();\ncase Shape s when s instanceof Square ->\n        ((Square)s).side() * ((Square)s).side();\ncase Shape s when s instanceof Triangle ->\n        0.5 * ((Triangle)s).base() * ((Triangle)s).height();\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: ''
+        text_en: ''
+      - label: "B"
+        text_fr: ''
+        text_en: ''
+      - label: "C"
+        text_fr: ''
+        text_en: ''
+      - label: "D"
+        text_fr: ''
+        text_en: ''
+    correct_answers: ["D"]
+    explanation_fr: ''
+    explanation_en: ''
+  - id: "ch05-008"
+    title_fr: "What will be the output of the following program?"
+    title_en: "What will be the output of the following program?\n```java\npublic class LabeledBreakTest {\n    public static void main(String[] args) {\n        int count = 0;\n        outerLoop:\n        while (count < 5) {\n            while (true) {\n                count++;\n                if (count == 3) {\n                    break outerLoop;\n                }\n            }\n        }\n        System.out.println(count);\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "`2`"
+        text_en: "`2`"
+      - label: "B"
+        text_fr: "`3`"
+        text_en: "`3`"
+      - label: "C"
+        text_fr: "`4`"
+        text_en: "`4`"
+      - label: "D"
+        text_fr: "`5`"
+        text_en: "`5`"
+      - label: "E"
+        text_fr: "The program does not compile"
+        text_en: "The program does not compile"
+    correct_answers: ["B"]
+    explanation_fr: "A) Incorrect: The value of `count` is incremented until it reaches 3. The labeled `break` statement breaks out of the outer loop when `count` equals 3. B) Correct: The value of `count` is incremented inside the inner `while` loop. When `count` reaches 3, the labeled `break` statement (`break outerLoop`) is executed, causing the control to exit the outer loop. Therefore, `count` is 3 when printed. C) Incorrect: The loop does not continue incrementing `count` to 4 because the labeled `break` statement exits the loop when `count` is 3. D) Incorrect: The loop does not continue incrementing `count` to 5 because the labeled `break` statement exits the loop when `count` is 3. E) Incorrect: The program compiles successfully and runs without errors."
+    explanation_en: "A) Incorrect: The value of `count` is incremented until it reaches 3. The labeled `break` statement breaks out of the outer loop when `count` equals 3. B) Correct: The value of `count` is incremented inside the inner `while` loop. When `count` reaches 3, the labeled `break` statement (`break outerLoop`) is executed, causing the control to exit the outer loop. Therefore, `count` is 3 when printed. C) Incorrect: The loop does not continue incrementing `count` to 4 because the labeled `break` statement exits the loop when `count` is 3. D) Incorrect: The loop does not continue incrementing `count` to 5 because the labeled `break` statement exits the loop when `count` is 3. E) Incorrect: The program compiles successfully and runs without errors."
+  - id: "ch05-009"
+    title_fr: "What will be the output of the following program?"
+    title_en: "What will be the output of the following program?\n```java\npublic class ForLoopTest {\n    public static void main(String[] args) {\n        int sum = 0;\n        for (int i = 1; i <= 5; i++) {\n            sum += i;\n        }\n        System.out.println(sum);\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "`5`"
+        text_en: "`5`"
+      - label: "B"
+        text_fr: "`10`"
+        text_en: "`10`"
+      - label: "C"
+        text_fr: "`15`"
+        text_en: "`15`"
+      - label: "D"
+        text_fr: "`20`"
+        text_en: "`20`"
+      - label: "E"
+        text_fr: "The program does not compile"
+        text_en: "The program does not compile"
+    correct_answers: ["C"]
+    explanation_fr: "A) Incorrect: The value 5 is just the upper limit of the loop and not the sum of the integers from 1 to 5. B) Incorrect: The value 10 is less than the sum of the integers from 1 to 5. C) Correct: The loop iterates from 1 to 5, adding each value of `i` to `sum`. The calculations are as follows: 1 + 2 + 3 + 4 + 5 = 15. D) Incorrect: The value 20 is more than the sum of the integers from 1 to 5. E) Incorrect: The program compiles successfully and runs without errors."
+    explanation_en: "A) Incorrect: The value 5 is just the upper limit of the loop and not the sum of the integers from 1 to 5. B) Incorrect: The value 10 is less than the sum of the integers from 1 to 5. C) Correct: The loop iterates from 1 to 5, adding each value of `i` to `sum`. The calculations are as follows: 1 + 2 + 3 + 4 + 5 = 15. D) Incorrect: The value 20 is more than the sum of the integers from 1 to 5. E) Incorrect: The program compiles successfully and runs without errors."
+  - id: "ch05-010"
+    title_fr: "What will be the output of the following program?"
+    title_en: "What will be the output of the following program?\n```java\npublic class EnhancedForLoopTest {\n    public static void main(String[] args) {\n        int[] numbers = {1, 2, 3, 4, 5};\n        int sum = 0;\n        for (int num : numbers) {\n            if (num % 2 == 0) {\n                continue;\n            }\n            sum += num;\n        }\n        System.out.println(sum);\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "`9`"
+        text_en: "`9`"
+      - label: "B"
+        text_fr: "`10`"
+        text_en: "`10`"
+      - label: "C"
+        text_fr: "`12`"
+        text_en: "`12`"
+      - label: "D"
+        text_fr: "`15`"
+        text_en: "`15`"
+      - label: "E"
+        text_fr: "The program does not compile"
+        text_en: "The program does not compile"
+    correct_answers: ["A"]
+    explanation_fr: "A) Correct: The `continue` statement skips the current iteration when the number is even (`num % 2 == 0`). The odd numbers in the array are 1, 3, and 5. Their sum is 1 + 3 + 5 = 9. B) Incorrect: The sum of the odd numbers (1, 3, and 5) is 9, not 10. C) Incorrect: The sum of the odd numbers (1, 3, and 5) is 9, not 12. D) Incorrect: The sum of all the numbers in the array (1 + 2 + 3 + 4 + 5) is 15, but the `continue` statement causes the loop to skip adding the even numbers. E) Incorrect: The program compiles successfully and runs without errors."
+    explanation_en: "A) Correct: The `continue` statement skips the current iteration when the number is even (`num % 2 == 0`). The odd numbers in the array are 1, 3, and 5. Their sum is 1 + 3 + 5 = 9. B) Incorrect: The sum of the odd numbers (1, 3, and 5) is 9, not 10. C) Incorrect: The sum of the odd numbers (1, 3, and 5) is 9, not 12. D) Incorrect: The sum of all the numbers in the array (1 + 2 + 3 + 4 + 5) is 15, but the `continue` statement causes the loop to skip adding the even numbers. E) Incorrect: The program compiles successfully and runs without errors."
+---
+
+Chapter 5 - Lambdas and Functional Interfaces exam.
