@@ -17,4 +17,10 @@ npm-debug.*
 .env.production
 
 # os
-.DS_Store\n.verification/
+.DS_Store
+
+# scratch verification
+.verification/
+
+# cache
+.cache/

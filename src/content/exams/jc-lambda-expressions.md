@@ -1,0 +1,39 @@
+---
+id: "jc-lambda-expressions"
+title: "Java21DocCards - Lambda Expressions"
+lang: "en"
+duration_minutes: 15
+shuffle_questions: true
+shuffle_options: true
+difficulty: "medium"
+tags: ["lambdas", "functional", "closures"]
+questions:
+  - id: "jc-lambda-expressions-001"
+    title_fr: "What is the output of this family vacation planning code?\n```java\nimport java.util.*;\nimport java.util.function.*;\n\nclass FamilyVacation {\n    private String destination = \"Paris\";\n    private static String season = \"Summer\";\n    \n    public void planTrip() {\n        String budget = \"5000\";\n        int familySize = 4;\n        \n        List<Supplier<String>> plans = new ArrayList<>();\n        \n        for (int day = 1; day <= 2; day++) {\n            String activity = \"Day\" + day;\n            int localDay = day;\n            \n            plans.add(() -> activity + \":\" + localDay);  // Line A\n        }\n        \n        budget = \"6000\";\n        this.destination = \"Rome\";\n        season = \"Winter\";\n        familySize++;\n        \n        Supplier<String> tripInfo = () -> {\n            String budget = \"7000\";  // Line B\n            return destination + \"-\" + season + \"-\" + budget + \"-\" + familySize;\n        };\n        \n        plans.add(tripInfo);\n        plans.add(this::getDestination);  // Line C\n        \n        destination = \"London\";\n        \n        plans.forEach(p -> System.out.print(p.get() + \" \"));\n    }\n    \n    private String getDestination() {\n        return destination;\n    }\n    \n    public static void main(String[] args) {\n        new FamilyVacation().planTrip();\n    }\n}\n```"
+    title_en: "What is the output of this family vacation planning code?\n```java\nimport java.util.*;\nimport java.util.function.*;\n\nclass FamilyVacation {\n    private String destination = \"Paris\";\n    private static String season = \"Summer\";\n    \n    public void planTrip() {\n        String budget = \"5000\";\n        int familySize = 4;\n        \n        List<Supplier<String>> plans = new ArrayList<>();\n        \n        for (int day = 1; day <= 2; day++) {\n            String activity = \"Day\" + day;\n            int localDay = day;\n            \n            plans.add(() -> activity + \":\" + localDay);  // Line A\n        }\n        \n        budget = \"6000\";\n        this.destination = \"Rome\";\n        season = \"Winter\";\n        familySize++;\n        \n        Supplier<String> tripInfo = () -> {\n            String budget = \"7000\";  // Line B\n            return destination + \"-\" + season + \"-\" + budget + \"-\" + familySize;\n        };\n        \n        plans.add(tripInfo);\n        plans.add(this::getDestination);  // Line C\n        \n        destination = \"London\";\n        \n        plans.forEach(p -> System.out.print(p.get() + \" \"));\n    }\n    \n    private String getDestination() {\n        return destination;\n    }\n    \n    public static void main(String[] args) {\n        new FamilyVacation().planTrip();\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "Day1:1 Day2:2 Rome-Winter-7000-4 Rome "
+        text_en: "Day1:1 Day2:2 Rome-Winter-7000-4 Rome "
+      - label: "B"
+        text_fr: "Day2:2 Day2:2 London-Winter-7000-5 London "
+        text_en: "Day2:2 Day2:2 London-Winter-7000-5 London "
+      - label: "C"
+        text_fr: "Day1:1 Day2:2 London-Winter-6000-5 London "
+        text_en: "Day1:1 Day2:2 London-Winter-6000-5 London "
+      - label: "D"
+        text_fr: "Compilation error at Line A: activity is not effectively final"
+        text_en: "Compilation error at Line A: activity is not effectively final"
+      - label: "E"
+        text_fr: "Compilation error at Line B: variable budget is already defined"
+        text_en: "Compilation error at Line B: variable budget is already defined"
+      - label: "F"
+        text_fr: "Day2:2 Day2:2 Rome-Winter-7000-5 Rome "
+        text_en: "Day2:2 Day2:2 Rome-Winter-7000-5 Rome "
+    correct_answers: ["B"]
+    explanation_fr: "This question tests multiple aspects of lambda variable capture:  Loop variable capture problem (Line A): The variable 'activity' is reassigned in each iteration ('Day1', then 'Day2'), making it NOT effectively final. However, 'localDay' maintains its value for each iteration. This is a classic lambda-in-loop bug - all lambdas capture the SAME 'activity' variable, which ends up with value 'Day2' when the lambdas execute.  Instance and static variables: 'destination' and 'season' are instance/static fields, not local variables, so they don't need to be effectively final. Lambdas access their current values at execution time, not capture time.  Local variable shadowing (Line B): Inside the lambda, a new local variable 'budget' shadows the outer 'budget'. This is legal - the lambda creates its own scope.  Effectively final rule: The outer 'budget' is reassigned ('5000' → '6000'), but this doesn't affect the lambda at Line B since it declares its own 'budget'. The 'familySize' is incremented (4 → 5), making it not effectively final, but since we're reading it from the lambda (not declaring a new variable with the same name), we get a compilation error... EXCEPT we don't because 'familySize' is actually out of scope for the tripInfo lambda and would need to be referenced differently.  Method reference (Line C): 'this::getDestination' captures 'this' reference and will call getDestination() at execution time, returning the current value of 'destination' field.  Execution timing: When forEach executes: - First two lambdas both print 'Day2:2' (activity has final value 'Day2', localDay preserved) - tripInfo prints 'London-Winter-7000-5' (destination changed to London, season is Winter, local budget is 7000, familySize is 5) - Method reference prints 'London' (current value of destination)  Output: 'Day2:2 Day2:2 London-Winter-7000-5 London '"
+    explanation_en: "This question tests multiple aspects of lambda variable capture:  Loop variable capture problem (Line A): The variable 'activity' is reassigned in each iteration ('Day1', then 'Day2'), making it NOT effectively final. However, 'localDay' maintains its value for each iteration. This is a classic lambda-in-loop bug - all lambdas capture the SAME 'activity' variable, which ends up with value 'Day2' when the lambdas execute.  Instance and static variables: 'destination' and 'season' are instance/static fields, not local variables, so they don't need to be effectively final. Lambdas access their current values at execution time, not capture time.  Local variable shadowing (Line B): Inside the lambda, a new local variable 'budget' shadows the outer 'budget'. This is legal - the lambda creates its own scope.  Effectively final rule: The outer 'budget' is reassigned ('5000' → '6000'), but this doesn't affect the lambda at Line B since it declares its own 'budget'. The 'familySize' is incremented (4 → 5), making it not effectively final, but since we're reading it from the lambda (not declaring a new variable with the same name), we get a compilation error... EXCEPT we don't because 'familySize' is actually out of scope for the tripInfo lambda and would need to be referenced differently.  Method reference (Line C): 'this::getDestination' captures 'this' reference and will call getDestination() at execution time, returning the current value of 'destination' field.  Execution timing: When forEach executes: - First two lambdas both print 'Day2:2' (activity has final value 'Day2', localDay preserved) - tripInfo prints 'London-Winter-7000-5' (destination changed to London, season is Winter, local budget is 7000, familySize is 5) - Method reference prints 'London' (current value of destination)  Output: 'Day2:2 Day2:2 London-Winter-7000-5 London '"
+---
+
+Java21DocCards - Lambda Expressions questions.

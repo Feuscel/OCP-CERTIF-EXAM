@@ -1,0 +1,153 @@
+---
+id: "ch03"
+title: "Chapter 3 - Creating and Using Arrays"
+lang: "en"
+duration_minutes: 15
+shuffle_questions: true
+shuffle_options: true
+difficulty: "medium"
+tags: ["arrays", "collections", "generics"]
+questions:
+  - id: "ch03-001"
+    title_fr: "Consider the following record definition:\nWhich of the following statements is true about the `Employee` record?"
+    title_en: "Consider the following record definition:\nWhich of the following statements is true about the `Employee` record?\n```java\npublic record Employee(String name, int age) {}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "The `Employee` record explicitly defines a public constructor that initializes its fields."
+        text_en: "The `Employee` record explicitly defines a public constructor that initializes its fields."
+      - label: "B"
+        text_fr: "The fields `name` and `age` can be reassigned to new values after an `Employee` object is created."
+        text_en: "The fields `name` and `age` can be reassigned to new values after an `Employee` object is created."
+      - label: "C"
+        text_fr: "The `Employee` record implicitly creates a public constructor and private final fields for `name` and `age`."
+        text_en: "The `Employee` record implicitly creates a public constructor and private final fields for `name` and `age`."
+      - label: "D"
+        text_fr: "It is mandatory to define getters for the fields `name` and `age` in the `Employee` record."
+        text_en: "It is mandatory to define getters for the fields `name` and `age` in the `Employee` record."
+    correct_answers: ["C"]
+    explanation_fr: "A) Incorrect: because the record `Employee` does not explicitly define a `public` constructor. Records automatically generate a `public` constructor with the same parameters as the record's declaration. B) Incorrect: as the fields within a record are `final`, which means they cannot be reassigned to new values after an `Employee` object has been created. This immutability is one of the key characteristics of records. C) Correct: option. Records implicitly create a public constructor for the record's fields and also make these fields `private` and `final`. This means you don't have to manually write boilerplate code for constructor, getters, or to ensure immutability. D) Incorrect: because records automatically generate public methods to access the fields, known as accessor methods, which essentially act as getters. Therefore, it is not mandatory (or even possible) to define separate getters for the fields."
+    explanation_en: "A) Incorrect: because the record `Employee` does not explicitly define a `public` constructor. Records automatically generate a `public` constructor with the same parameters as the record's declaration. B) Incorrect: as the fields within a record are `final`, which means they cannot be reassigned to new values after an `Employee` object has been created. This immutability is one of the key characteristics of records. C) Correct: option. Records implicitly create a public constructor for the record's fields and also make these fields `private` and `final`. This means you don't have to manually write boilerplate code for constructor, getters, or to ensure immutability. D) Incorrect: because records automatically generate public methods to access the fields, known as accessor methods, which essentially act as getters. Therefore, it is not mandatory (or even possible) to define separate getters for the fields."
+  - id: "ch03-002"
+    title_fr: "Given the record definition below:\nWhich statement accurately describes the immutability of records?"
+    title_en: "Given the record definition below:\nWhich statement accurately describes the immutability of records?\n```java\npublic record Account(String id, double balance) {}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "The `balance` field can be modified using a public setter method within the `Account` record."
+        text_en: "The `balance` field can be modified using a public setter method within the `Account` record."
+      - label: "B"
+        text_fr: "Once an `Account` object is created, its `id` and `balance` cannot be changed."
+        text_en: "Once an `Account` object is created, its `id` and `balance` cannot be changed."
+      - label: "C"
+        text_fr: "Immutability of records can be bypassed by you define custom setter methods for the `id` and `balance` fields."
+        text_en: "Immutability of records can be bypassed by you define custom setter methods for the `id` and `balance` fields."
+      - label: "D"
+        text_fr: "Records allow field values to be modified if accessed directly, without using setter methods."
+        text_en: "Records allow field values to be modified if accessed directly, without using setter methods."
+    correct_answers: ["B"]
+    explanation_fr: "A) Incorrect: because records in Java do not support public setter methods for their fields. The fields of a record are `final` and cannot be modified after the object's construction, which is a key aspect of their design to enforce immutability. B) Correct: option. Records are immutable by design, meaning that once a record object is created, the values of its fields (`id` and `balance` in this case) cannot be changed. This immutability is ensured by making the fields `private` and `final`, and by not providing setter methods. C) Incorrect: Custom setter methods cannot be defined for the record fields because records do not allow defining mutators for their components. D) Incorrect: because the fields in a record are implicitly `final` and private, which means they cannot be modified directly or through setter methods. The design of records enforces this immutability to ensure that instances of records act as true carriers of immutable data."
+    explanation_en: "A) Incorrect: because records in Java do not support public setter methods for their fields. The fields of a record are `final` and cannot be modified after the object's construction, which is a key aspect of their design to enforce immutability. B) Correct: option. Records are immutable by design, meaning that once a record object is created, the values of its fields (`id` and `balance` in this case) cannot be changed. This immutability is ensured by making the fields `private` and `final`, and by not providing setter methods. C) Incorrect: Custom setter methods cannot be defined for the record fields because records do not allow defining mutators for their components. D) Incorrect: because the fields in a record are implicitly `final` and private, which means they cannot be modified directly or through setter methods. The design of records enforces this immutability to ensure that instances of records act as true carriers of immutable data."
+  - id: "ch03-003"
+    title_fr: "Consider the following record declaration:\nHow can you correctly initialize an instance of the `Product` record?"
+    title_en: "Consider the following record declaration:\nHow can you correctly initialize an instance of the `Product` record?\n```java\npublic record Product(int id, String name, double price) {}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "`Product p = new Product();`"
+        text_en: "`Product p = new Product();`"
+      - label: "B"
+        text_fr: "`Product p = Product(101, \"Coffee\", 15.99);`"
+        text_en: "`Product p = Product(101, \"Coffee\", 15.99);`"
+      - label: "C"
+        text_fr: "`Product p = {101, \"Coffee\", 15.99};`"
+        text_en: "`Product p = {101, \"Coffee\", 15.99};`"
+      - label: "D"
+        text_fr: "`Product p = new Product(101, \"Coffee\", 15.99);`"
+        text_en: "`Product p = new Product(101, \"Coffee\", 15.99);`"
+    correct_answers: ["D"]
+    explanation_fr: "A) Incorrect: because the default constructor without parameters does not exist for records in Java. Records require all their fields to be specified at the time of instantiation. B) Incorrect: because the syntax used here is not valid for creating a new instance of a record in Java. The correct syntax for instantiating a record involves using the `new` keyword followed by the record name and the parameters in parentheses. C) Incorrect: as it mistakenly uses the syntax for array initialization. In Java, objects, including records, cannot be instantiated using curly braces without the `new` keyword and proper constructor. D) Correct: option. Records in Java are instantiated using the `new` keyword followed by the record's constructor, which requires passing all the fields defined in the record. This syntax correctly creates a new `Product` record with the given `id`, `name`, and `price`."
+    explanation_en: "A) Incorrect: because the default constructor without parameters does not exist for records in Java. Records require all their fields to be specified at the time of instantiation. B) Incorrect: because the syntax used here is not valid for creating a new instance of a record in Java. The correct syntax for instantiating a record involves using the `new` keyword followed by the record name and the parameters in parentheses. C) Incorrect: as it mistakenly uses the syntax for array initialization. In Java, objects, including records, cannot be instantiated using curly braces without the `new` keyword and proper constructor. D) Correct: option. Records in Java are instantiated using the `new` keyword followed by the record's constructor, which requires passing all the fields defined in the record. This syntax correctly creates a new `Product` record with the given `id`, `name`, and `price`."
+  - id: "ch03-004"
+    title_fr: "Consider a record that needs to implement the `Comparable` interface to allow sorting based on one of its fields. Given the following record definition:\nWhich statement correctly describes how records can be customized by implementing interfaces?"
+    title_en: "Consider a record that needs to implement the `Comparable` interface to allow sorting based on one of its fields. Given the following record definition:\nWhich statement correctly describes how records can be customized by implementing interfaces?\n```java\npublic record Item(int id, String name, double price) implements Comparable<Item> {\n    public int compareTo(Item other) {\n        return Double.compare(this.price, other.price);\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "Records cannot implement interfaces because they are `final` and immutable by design, which prevents any form of behavior customization."
+        text_en: "Records cannot implement interfaces because they are `final` and immutable by design, which prevents any form of behavior customization."
+      - label: "B"
+        text_fr: "This record correctly implements the `Comparable` interface, allowing `Item` objects to be sorted based on their `price`."
+        text_en: "This record correctly implements the `Comparable` interface, allowing `Item` objects to be sorted based on their `price`."
+      - label: "C"
+        text_fr: "Implementing interfaces in records is restricted only to functional interfaces due to their immutable nature."
+        text_en: "Implementing interfaces in records is restricted only to functional interfaces due to their immutable nature."
+      - label: "D"
+        text_fr: "The `compareTo` method cannot be overridden in records because method overriding is not supported in record types."
+        text_en: "The `compareTo` method cannot be overridden in records because method overriding is not supported in record types."
+    correct_answers: ["B"]
+    explanation_fr: "A) Incorrect: Records in Java can implement interfaces. The finality and immutability of records do not preclude them from implementing interfaces, which can be used to add behaviors or contractual obligations to a record. B) Correct: option. The provided record definition correctly implements the `Comparable<Item>` interface by overriding the `compareTo` method. This customization allows instances of the `Item` record to be sorted based on the `price` field, demonstrating that records can indeed implement interfaces and override their methods as needed. C) Incorrect: There is no such restriction that limits records to implementing only functional interfaces. Records can implement any interface, including those with multiple abstract methods, as long as the record provides implementations for the abstract methods defined in the interface. D) Incorrect: Records can override methods from the interfaces they implement, including the `compareTo` method from the `Comparable` interface in this example. Method overriding is a key aspect of implementing interfaces and is fully supported by record types in Java."
+    explanation_en: "A) Incorrect: Records in Java can implement interfaces. The finality and immutability of records do not preclude them from implementing interfaces, which can be used to add behaviors or contractual obligations to a record. B) Correct: option. The provided record definition correctly implements the `Comparable<Item>` interface by overriding the `compareTo` method. This customization allows instances of the `Item` record to be sorted based on the `price` field, demonstrating that records can indeed implement interfaces and override their methods as needed. C) Incorrect: There is no such restriction that limits records to implementing only functional interfaces. Records can implement any interface, including those with multiple abstract methods, as long as the record provides implementations for the abstract methods defined in the interface. D) Incorrect: Records can override methods from the interfaces they implement, including the `compareTo` method from the `Comparable` interface in this example. Method overriding is a key aspect of implementing interfaces and is fully supported by record types in Java."
+  - id: "ch03-005"
+    title_fr: "Consider the ways to declare enums in Java. Which of the following declarations are valid? (Choose all that apply.)"
+    title_en: "Consider the ways to declare enums in Java. Which of the following declarations are valid? (Choose all that apply.)\n```java\nprotected enum Season {\n    WINTER, SPRING, SUMMER, FALL\n}\n```"
+    type: "multiple-choice"
+    options:
+      - label: "A"
+        text_fr: ''
+        text_en: ''
+      - label: "B"
+        text_fr: ''
+        text_en: ''
+      - label: "C"
+        text_fr: ''
+        text_en: ''
+      - label: "D"
+        text_fr: ''
+        text_en: ''
+    correct_answers: ["A", "D"]
+    explanation_fr: ''
+    explanation_en: ''
+  - id: "ch03-006"
+    title_fr: "Consider the following enum declaration:\nWhat is the result of calling `Color.GREEN.ordinal()`?"
+    title_en: "Consider the following enum declaration:\nWhat is the result of calling `Color.GREEN.ordinal()`?\n```java\npublic enum Color {\n    RED, GREEN, BLUE;\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: "`1`"
+        text_en: "`1`"
+      - label: "B"
+        text_fr: "`2`"
+        text_en: "`2`"
+      - label: "C"
+        text_fr: "`0`"
+        text_en: "`0`"
+      - label: "D"
+        text_fr: "`Color.GREEN`"
+        text_en: "`Color.GREEN`"
+    correct_answers: ["A"]
+    explanation_fr: "A) Correct: The `ordinal()` method returns the ordinal of this enumeration constant (its position in its enum declaration, where the initial constant is assigned an ordinal of zero). Since `GREEN` is the second enum constant declared in the `Color` enum, its ordinal value is 1. B) Incorrect: The ordinal value of `BLUE` would be 2, not `GREEN`, because `BLUE` is the third declared constant in the `Color` enum. C) Incorrect: The ordinal value of `RED` is 0, as it is the first declared constant in the `Color` enum. D) Incorrect: The `ordinal()` method returns an integer representing the position of the enum constant in the declaration, not the enum constant itself."
+    explanation_en: "A) Correct: The `ordinal()` method returns the ordinal of this enumeration constant (its position in its enum declaration, where the initial constant is assigned an ordinal of zero). Since `GREEN` is the second enum constant declared in the `Color` enum, its ordinal value is 1. B) Incorrect: The ordinal value of `BLUE` would be 2, not `GREEN`, because `BLUE` is the third declared constant in the `Color` enum. C) Incorrect: The ordinal value of `RED` is 0, as it is the first declared constant in the `Color` enum. D) Incorrect: The `ordinal()` method returns an integer representing the position of the enum constant in the declaration, not the enum constant itself."
+  - id: "ch03-007"
+    title_fr: "Consider an enum that needs to provide a custom method to display a message based on the enum constant. Which of the following implementations correctly defines such an enum?"
+    title_en: "Consider an enum that needs to provide a custom method to display a message based on the enum constant. Which of the following implementations correctly defines such an enum?\n```java\nprotected enum Direction {\n    NORTH, SOUTH, EAST, WEST;\n    private printDirection() {\n        System.out.println(\"Going \" + this.toString());\n    }\n}\n```"
+    type: "single-choice"
+    options:
+      - label: "A"
+        text_fr: ''
+        text_en: ''
+      - label: "B"
+        text_fr: ''
+        text_en: ''
+      - label: "C"
+        text_fr: ''
+        text_en: ''
+      - label: "D"
+        text_fr: ''
+        text_en: ''
+    correct_answers: ["D"]
+    explanation_fr: ''
+    explanation_en: ''
+---
+
+Chapter 3 - Creating and Using Arrays exam.
